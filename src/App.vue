@@ -11,8 +11,8 @@
      <v-navigation-drawer v-model="drawer" temporary>
        <v-list>
          <v-list-item @click="goHome" >首页</v-list-item>
-         <v-list-item  @click="$router.replace('/about');mytitle='关于'">关于</v-list-item>
-         <v-list-item  @click="$router.replace('/test');mytitle='测试'">测试</v-list-item>
+         <!-- <v-list-item  @click="$router.replace('/about');mytitle='关于'">关于</v-list-item>
+         <v-list-item  @click="$router.replace('/test');mytitle='测试'">测试</v-list-item> -->
        </v-list>
      </v-navigation-drawer>
 
@@ -38,7 +38,7 @@ export default {
     };
   },
   mounted() {
-    this.goHome();
+    // this.goHome();
   },
   beforeDestroy() {
     this.drawer = false;
