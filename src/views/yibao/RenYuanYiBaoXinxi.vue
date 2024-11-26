@@ -1,6 +1,13 @@
 <template>
     <div>
         <v-container style="width:100%;margin:0;max-width: 100%;">
+            <v-row>
+                <v-breadcrumbs :items="items">
+                <template v-slot:divider>
+                    <v-icon icon="mdi-chevron-right"></v-icon>
+                </template>
+                </v-breadcrumbs>
+            </v-row>
             <v-row no-gutters>
                 <v-col cols="4" align="center" style="padding:0 10px">
                     <v-row no-gutters><v-col align="center" style="font-size:23px">请填入参保人信息</v-col></v-row>
@@ -10,12 +17,12 @@
                     <!-- <v-row no-gutters><v-text-field hide-details v-model="begntime" label="开始时间"></v-text-field></v-row> -->
                     <!-- <v-row no-gutters><v-select hide-details v-model="psn_cert_type" :items="options2" label="患者证件类型"></v-select></v-row> -->
                     <v-row no-gutters><v-text-field hide-details v-model="insuplc_admdvs" label="参保地区划（一般外省才需要填）" clearable></v-text-field></v-row>
-                    <v-row><v-col align="center"><v-btn size="x-large" @click="personInfo()">查询</v-btn></v-col></v-row>
+                    <v-row><v-col align="center"><v-btn size="x-large" @click="personInfo()" :loading="loading">查询</v-btn></v-col></v-row>
                     
                 </v-col>
 
                 <v-col cols="8" align="center" style="padding:0 10px">
-                    <v-row no-gutters><v-col align="center" style="font-size:20px">基础信息</v-col></v-row>
+                    <v-row no-gutters><v-col align="center" style="font-size:20px" >基础信息</v-col></v-row>
                     <v-row no-gutters>
                         <v-col  cols="4" align="left">姓名：{{ personInfoJson.baseinfo.psn_name }}</v-col>
                         <v-col  cols="4" align="left">性别：{{ personInfoJson.baseinfo.gend  =='2'?'女':'男' }}</v-col>
@@ -26,10 +33,15 @@
                     <v-row no-gutters>
                             <v-col  cols="8" align="left">人员编号：{{ personInfoJson.baseinfo.psn_no }}</v-col>
                     </v-row>
-                    <v-row no-gutters v-for = "item in personInfoJson.insuinfo">
-                        <v-col  cols="4" align="left">参保地医保区划：{{ item.insuplc_admdvs }}</v-col>
-                        <v-col  cols="4" align="left">险种类型：{{  xianzhongleixing(item.insutype) }}</v-col>
-                        <v-col  cols="4" align="left">单位：{{ item.emp_name }}</v-col>
+                    <v-row no-gutters>
+                        <v-col>参保地医保区划</v-col>
+                        <v-col>险种类型</v-col>
+                        <v-col>单位</v-col>
+                    </v-row>
+                    <v-row no-gutters v-for = "item in personInfoJson.insuinfo" >
+                        <v-col  cols="4" >{{ item.insuplc_admdvs }}</v-col>
+                        <v-col  cols="4" >{{  xianzhongleixing(item.insutype) }}</v-col>
+                        <v-col  cols="4" >{{ item.emp_name }}</v-col>
                     </v-row>
                     <v-row no-gutters><hr style="border:1px solid #000000;width: 100%;" /></v-row>
 
@@ -43,7 +55,7 @@
                             <v-col>区划</v-col>
                             <v-col>险种</v-col>
                         </v-row>
-                        <v-row no-gutters v-for="item in manbingList">
+                        <v-row no-gutters v-for="item in manbingList" :class="{'greenBG':isTimeScope(item.begndate,item.enddate)}">
                             <v-col>{{ item.opsp_dise_name }}</v-col>
                             <v-col>{{ item.opsp_dise_code }}</v-col>
                             <v-col>{{ item.begndate }}</v-col>
@@ -61,7 +73,7 @@
                             <v-col>结束时间</v-col>
                             <v-col>险种</v-col>
                         </v-row>
-                        <v-row no-gutters v-for="item in dingdianList">
+                        <v-row no-gutters v-for="item in dingdianList" :class="{'greenBG':isTimeScope(item.begndate,item.enddate)}">
                             <v-col>{{ item.fixmedins_name }}</v-col>
                             <v-col>{{ item.begndate }}</v-col>
                             <v-col>{{ item.enddate }}</v-col>
@@ -83,7 +95,7 @@
                 <v-col>缴费开始月份</v-col>
                 <v-col>缴费结束月份</v-col>
             </v-row>
-            <v-row v-for = "item in jiaofeiList" no-gutters>
+            <v-row v-for = "item in jiaofeiList" no-gutters :class="{'greenBG':jiaofeiFuHe(item.accrym_begn,item.accrym_end,item.insutype)}">
                 <v-col>{{ item.poolarea_no }}</v-col>
                 <v-col>{{ item.insutype_name }}</v-col>
                 <v-col>{{ item.clct_time }}</v-col>
@@ -103,6 +115,13 @@ export default {
     name: 'yibaofuzhu',
     data() {
         return {
+
+            items: [
+                    { title: "首页", to:'/' ,replace:true,disabled:false},
+                    { title: "医保辅助功能",to:'/yibaofuzhu',replace:true,disabled:false },
+                    {title:'个人医保信息查询'}
+            ],
+
             mdtrt_cert_type: '02',
             options1: [
                 { title: '01电子医保凭证', value: '01'},
@@ -152,13 +171,13 @@ export default {
             jiaofeiList:[],
             manbingList:[],
             dingdianList:[],
-            
+            loading:false,
         }
     },
     methods: {
         //获取人员信息
         async personInfo(){
-
+            
             if(!this.mdtrt_cert_no){
                 this.errFlag = true;
                 this.errmsg = '请填写参保人证件号码';
@@ -169,7 +188,8 @@ export default {
                 this.errmsg = '请填写正确的身份证号码';
                 return;
             }
-
+            this.errFlag = false;
+            this.loading = true;
             this.certno = this.mdtrt_cert_no;
             const response = await this.$axios.post('/yibaofuzhu/personInfo',{
                 mdtrt_cert_type: this.mdtrt_cert_type,
@@ -196,6 +216,7 @@ export default {
                     this.errmsg = response.data.result ;
                 }
             }
+            this.loading = false;
 
         },
 
@@ -278,6 +299,49 @@ export default {
             let beizhu = JSON.parse(exp_content);
             return this.xianzhongleixing(beizhu.insutype);
         },
+        //符合时间范围
+        isTimeScope(begindate,enddate){
+            begindate = new Date(begindate);
+            enddate = new Date(enddate);
+            let current = new Date();
+            if(current < begindate || current > enddate){
+                return false;
+            }else{
+                return true;
+            }
+        },
+        jiaofeiFuHe(begindate,enddate,insutype){
+
+
+            const year1 = parseInt(begindate.slice(0, 4), 10);
+            const month1 = parseInt(begindate.slice(4, 6), 10) - 1; // 月份从 0 开始
+            const begind = new Date(year1, month1, 1);
+
+            const year2 = parseInt(enddate.slice(0, 4), 10);
+            const month2 = parseInt(enddate.slice(4, 6), 10) - 1; // 月份从 0 开始
+            const endd = new Date(year2, month2, 1); 
+
+
+            let current = new Date();
+            const today = new Date(current.getFullYear(), current.getMonth());
+
+
+            if(insutype == '390'){
+                console.log(today < begind || today > endd)
+                if(today < begind || today > endd){
+                    return false;
+                }else{
+                    return true;
+                }
+            }else if(insutype == '310'){
+                let lastMonth = new Date(current.getFullYear(), current.getMonth() - 1);
+                if(begind.getFullYear() == lastMonth.getFullYear() && begind.getMonth() == lastMonth.getMonth()){
+                    return true;
+                }else{
+                    return false;
+                }
+            }
+        },
     },
     watch: {
         mdtrt_cert_type: function(val) {
@@ -295,3 +359,9 @@ export default {
 }
 
 </script>
+
+
+<style scoped>
+.greenBG{background-color: #90EE90;}
+
+</style>

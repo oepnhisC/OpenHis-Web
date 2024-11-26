@@ -5,6 +5,7 @@ import MenZhen from '@/views/menzhen/MenZhen.vue'
 import ShouFei from '@/views/shoufei/ShouFei.vue'
 import yibaofuzhu from '@/views/yibao/YiBaoFuZhu.vue'
 import RenYuanYiBaoXinxi from '@/views/yibao/RenYuanYiBaoXinxi.vue'
+import MenZhenJieZhangGuanLi from '@/views/shoufei/MenZhenJieZhangGuanLi.vue'
 
 
 const router = createRouter({
@@ -16,6 +17,7 @@ const router = createRouter({
     {path:'/ShouFei',name:'ShouFei',component:ShouFei},
     {path:'/yibaofuzhu',name:'yibaofuzhu',component:yibaofuzhu},
     {path:'/RenYuanYiBaoXinxi',name:'RenYuanYiBaoXinxi',component:RenYuanYiBaoXinxi},
+    {path:'/MenZhenJZGuanLi',name:'MenZhenJZGuanLi',component:MenZhenJieZhangGuanLi},
 
   ]
 })
