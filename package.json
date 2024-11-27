@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@mdi/font": "^7.4.47",
+    "@vuepic/vue-datepicker": "^10.0.0",
     "axios": "^1.7.7",
     "dayjs": "^1.11.13",
     "lodash": "^4.17.21",
