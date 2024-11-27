@@ -18,10 +18,20 @@
                 <v-col align="center" cols="2"><v-btn @click="getThisWeek()">查最近一周</v-btn></v-col>
                 <v-col align="center" cols="2"><v-btn @click="getThisMonth()">查本月</v-btn></v-col>
             </v-row>
-            <v-data-table :headers="headers" :items="danJuList"   @click:row="selectRow"
+            <v-data-table :headers="headers" :items="danJuList"   
              :items-per-page="9999"  sticky :loading="loading" loading-text="正在加载中"
              no-data-text="暂无数据" hide-default-footer 
-             style="width: 100%;">
+             style="width: 100%;"  >
+             <template v-slot:item="{ item }">
+                <tr :class="{'highlighted':selectedItem === item }" @click="selectRow(item)">
+                    <td>{{ item.fmzh }}</td>
+                    <td>{{ item.fmzh }}</td>
+                    <td>{{ item.fmzh }}</td>
+                    <td>{{ item.fmzh }}</td>
+                    <td>{{ item.fmzh }}</td>
+                    <td>{{ item.fmzh }}</td>
+                </tr>
+             </template>
             </v-data-table>
         </v-container>
     </div>
@@ -75,6 +85,7 @@
                 ],
                 danJuList: [],
                 loading: false,
+                selectedItem :null,
             }
         },
         mounted() {
@@ -83,9 +94,9 @@
         methods:{
           
             // 选择单据
-            async selectRow(item,obj) {
-                console.log(obj.item);
-                
+            async selectRow(item) {
+                console.log(item);
+                this.selectedItem = item;
 
             },
             // 获取单据列表
@@ -141,3 +152,7 @@
         },
     }
 </script>
+
+<style scoped>
+.highlighted{background-color: yellow;}
+</style>
