@@ -1,6 +1,6 @@
 <template>
     <div>
-        <v-container style="width:100%;margin:0;max-width: 100%;height: 1000px;">
+        <v-container style="width:100%;margin:0;max-width: 100%;">
             <v-row>
                 <v-breadcrumbs :items="items">
                 <template v-slot:divider>
@@ -8,28 +8,53 @@
                 </template>
                 </v-breadcrumbs>
             </v-row>
-            <v-row>
-                <v-col cols="4">
-                    <VueDatePicker v-model="date" format="yyyy-MM-dd" range locale="zh-cn" day-picker 
-                    :enable-time-picker="false" text-input select-text="确定" cancel-text="取消"></VueDatePicker>
+            <v-row style="height: 80px;">
+                <v-col cols="3">
+                    <v-row>
+                        <VueDatePicker v-model="date" format="yyyy-MM-dd" range locale="zh-cn" day-picker 
+                        :enable-time-picker="false" text-input select-text="确定" cancel-text="取消"></VueDatePicker>
+                    </v-row>
+                    <v-row style="font-size: 12px;margin-top: 10px;" no-gutters><v-col align="center">不建议查询超过2个月的数据，有卡死的风险</v-col></v-row>
                 </v-col>
-                <v-col align="center" cols="2"><v-btn @click="getDanJuList()">查询</v-btn></v-col>
-                <v-col align="center" cols="2"><v-btn @click="getToDay()">查今日</v-btn></v-col>
-                <v-col align="center" cols="2"><v-btn @click="getThisWeek()">查最近一周</v-btn></v-col>
-                <v-col align="center" cols="2"><v-btn @click="getThisMonth()">查本月</v-btn></v-col>
+                <v-col align="center" style="margin-left: 20px;" ><v-btn @click="getDanJuList()" :loading="loading" size="large">查询</v-btn></v-col>
+                <v-col align="center" style="margin-left: 20px;" ><v-btn @click="getToDay()" :loading="loading" size="large">查今日</v-btn></v-col>
+                <v-col align="center" style="margin-left: 20px;" ><v-btn @click="getThisWeek()" :loading="loading" size="large">查最近一周</v-btn></v-col>
+                <v-col align="center" style="margin-left: 20px;" ><v-btn @click="getThisMonth()" :loading="loading" size="large">查本月</v-btn></v-col>
             </v-row>
-            <v-data-table :headers="headers" :items="danJuList"   
+            <v-data-table :headers="headers" :items="danJuList"  
              :items-per-page="9999"  sticky :loading="loading" loading-text="正在加载中"
-             no-data-text="暂无数据" hide-default-footer 
-             style="width: 100%;"  >
+             no-data-text="暂无数据" hide-default-footer  draggable
+             style="width: 100%;font-size:12px;height: 750px;" >
              <template v-slot:item="{ item }">
-                <tr :class="{'highlighted':selectedItem === item }" @click="selectRow(item)">
+                <tr :class="{'highlighted':selectedItem === item }" @click="selectRow(item)" style="white-space: nowrap;">
+                    <td>{{ item.ffph }}</td>
+                    <td>{{ item.fjzdjh }}</td>
+                    <td>{{ item.fname }}</td>
+                    <td>{{ item.fsex }}</td>
+                    <td>{{ item.fage }}</td>
                     <td>{{ item.fmzh }}</td>
-                    <td>{{ item.fmzh }}</td>
-                    <td>{{ item.fmzh }}</td>
-                    <td>{{ item.fmzh }}</td>
-                    <td>{{ item.fmzh }}</td>
-                    <td>{{ item.fmzh }}</td>
+                    <td>{{ item.fbrlb }}</td>
+                    <td>{{ item.fszf }}</td>
+                    <td>{{ item.fjysj }}</td>
+                    <td>{{ item.fsfy }}</td>
+                    <td>{{ item.fqe }}</td>
+                    <td>{{ item.fysje }}</td>
+                    <td>{{ item.fjzje }}</td>
+                    <td>{{ item.fws }}</td>
+                    <td>{{ item.fjmyh }}</td>
+                    <td>{{ item.fbz }}</td>
+                    <td>{{ item.fzhzf }}</td>
+                    <td>{{ item.ftczf }}</td>
+                    <td>{{ item.fgwybz }}</td>
+                    <td>{{ item.fylbz }}</td>
+                    <td>{{ item.fyljz }}</td>
+                    <td>{{ item.fqybz }}</td>
+                    <td>{{ item.fdfbc }}</td>
+                    <td>{{ item.fzxjj }}</td>
+                    <td>{{ item.fdetc }}</td>
+                    <td>{{ item.fdbtbtc }}</td>
+                    <td>{{ item.fqtzj }}</td>
+             
                 </tr>
              </template>
             </v-data-table>
@@ -57,21 +82,20 @@
                     // {title:'结账ID',key:'jiezhangID'},
                     {title:'发票号',key:'ffph',nowrap:true},
                     {title:'结账单据号',key:'fjzdjh',nowrap:true},
-                    {title:'尾数',key:'fws',nowrap:true},
-                    {title:'结账金额',key:'fjzje',nowrap:true},
-                    {title:'门诊号',key:'fmzh',nowrap:true},
-                    {title:'病人类别',key:'fbrlb',nowrap:true},
                     {title:'病人姓名',key:'fname',nowrap:true},
-                    {title:'身份证号',key:'fszf',nowrap:true},
-                    {title:'其他证件',key:'fqtzj',nowrap:true},
                     {title:'性别',key:'fsex',nowrap:true},
                     {title:'年龄',key:'fage',nowrap:true},
-                    {title:'减免优惠',key:'fjmyh',nowrap:true},
-                    {title:'收费员',key:'fsfy',nowrap:true},
+                    {title:'门诊号',key:'fmzh',nowrap:true},
+                    {title:'病人类别',key:'fbrlb',nowrap:true},
+                    {title:'身份证号',key:'fszf',nowrap:true},
                     {title:'交易时间',key:'fjysj',nowrap:true},
-                    {title:'备注',key:'fbz',nowrap:true},
+                    {title:'收费员',key:'fsfy',nowrap:true},
                     {title:'全额',key:'fqe',nowrap:true},
                     {title:'应收金额',key:'fysje',nowrap:true},
+                    {title:'结账金额',key:'fjzje',nowrap:true},
+                    {title:'尾数',key:'fws',nowrap:true},
+                    {title:'减免优惠',key:'fjmyh',nowrap:true},
+                    {title:'备注',key:'fbz',nowrap:true},
                     {title:'账户支付',key:'fzhzf',nowrap:true},
                     {title:'统筹支付',key:'ftczf',nowrap:true},
                     {title:'公务员支付',key:'fgwybz',nowrap:true},
@@ -82,6 +106,7 @@
                     {title:'专项基金',key:'fzxjj',nowrap:true},
                     {title:'大额统筹',key:'fdetc',nowrap:true},
                     {title:'大病特病统筹',key:'fdbtbtc',nowrap:true},
+                    {title:'其他证件',key:'fqtzj',nowrap:true},
                 ],
                 danJuList: [],
                 loading: false,
@@ -97,7 +122,6 @@
             async selectRow(item) {
                 console.log(item);
                 this.selectedItem = item;
-
             },
             // 获取单据列表
             async getDanJuList() {
@@ -153,6 +177,7 @@
     }
 </script>
 
+
 <style scoped>
-.highlighted{background-color: yellow;}
+.highlighted{background-color: #cceeff}
 </style>
