@@ -3,6 +3,13 @@
    <v-layout>
      <v-app-bar scroll-behavior="hide" >
        <v-app-bar-nav-icon  @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
+       <v-breadcrumbs :items="items">
+        <template v-slot:divider>
+            <v-icon icon="mdi-chevron-right"></v-icon>
+        </template>
+        </v-breadcrumbs>
+      <v-spacer ></v-spacer>
+      <v-spacer ></v-spacer>
        <v-toolbar-title >{{mytitle}}</v-toolbar-title>
        <v-spacer ></v-spacer>
        <v-btn variant="text" rounded="xl" @click="goHome">返回首页</v-btn>
@@ -17,7 +24,7 @@
      </v-navigation-drawer>
 
      <v-main>
-       <RouterView @setTitle="setTitle($event)"/>
+        <RouterView @setTitle="setTitle($event)" @setbreadcrumbs="setbreadcrumbs($event)"/>
      </v-main>
    </v-layout>
  </v-card>
@@ -35,6 +42,9 @@ export default {
     return {
       drawer: false,
       mytitle: '首页',
+      items: [
+        { title: "首页", to:'/' ,replace:true,disabled:false},
+      ],
     };
   },
   mounted() {
@@ -50,7 +60,10 @@ export default {
     },
     setTitle(title) {
       this.mytitle = title;
-    }
+    },
+    setbreadcrumbs(items) {
+      this.items = items;
+    },
   },
 };
 

@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHashHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import GuaHao from '@/views/guahao/GuaHao.vue'
 import MenZhen from '@/views/menzhen/MenZhen.vue'
@@ -7,10 +7,11 @@ import yibaofuzhu from '@/views/yibao/YiBaoFuZhu.vue'
 import RenYuanYiBaoXinxi from '@/views/yibao/RenYuanYiBaoXinxi.vue'
 import MenZhenJieZhangGuanLi from '@/views/shoufei/MenZhenJieZhangGuanLi.vue'
 import GaoLingZiFeiBiao from '@/views/shoufei/GaoLingZiFeiBiao.vue'
+import MenZhenTuiFei from '@/views/shoufei/MenZhenTuiFei.vue'
 
 
 const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
+  history: createWebHashHistory(import.meta.env.BASE_URL),
   routes: [
     { path: '/',           name: 'home',    component: HomeView   },
     { path: '/GuaHao',      name: 'GuaHao',   component: GuaHao   },
@@ -20,6 +21,7 @@ const router = createRouter({
     {path:'/RenYuanYiBaoXinxi',name:'RenYuanYiBaoXinxi',component:RenYuanYiBaoXinxi},
     {path:'/MenZhenJZGuanLi',name:'MenZhenJZGuanLi',component:MenZhenJieZhangGuanLi},
     {path:'/GaoLingZiFeiBiao',name:'GaoLingZiFeiBiao',component:GaoLingZiFeiBiao},
+    {path:'/MenZhenTuiFei',name:'MenZhenTuiFei',component:MenZhenTuiFei},
 
   ]
 })

@@ -1,13 +1,7 @@
 <template>
     <div>
         <v-container style="width:100%;margin:0;max-width: 100%;">
-            <v-row>
-                <v-breadcrumbs :items="items">
-                <template v-slot:divider>
-                    <v-icon icon="mdi-chevron-right"></v-icon>
-                </template>
-                </v-breadcrumbs>
-            </v-row>
+         
             <v-row no-gutters>
                 <v-col cols="4" align="center" style="padding:0 10px">
                     <v-row no-gutters><v-col align="center" style="font-size:23px">请填入参保人信息</v-col></v-row>
@@ -174,6 +168,11 @@ export default {
             loading:false,
         }
     },
+
+    mounted() {
+        this.$emit('setbreadcrumbs',this.items);
+    },
+
     methods: {
         //获取人员信息
         async personInfo(){

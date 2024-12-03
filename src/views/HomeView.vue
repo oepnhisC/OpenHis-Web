@@ -39,10 +39,12 @@ import axios from 'axios';
 
 export default {
   data: () => ({
-    
+      items: [
+        { title: "首页", to:'/' ,replace:true,disabled:false},
+      ],
     }),
   mounted:function(){
-
+    this.$emit('setbreadcrumbs',this.items);
   },
   computed:{
    

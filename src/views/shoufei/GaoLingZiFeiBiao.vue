@@ -2,13 +2,7 @@
     <div>
         <v-container style="width:100%;margin:0;max-width: 100%;">
             <v-row>
-                <v-col cols="3">
-                    <v-breadcrumbs :items="items">
-                    <template v-slot:divider>
-                        <v-icon icon="mdi-chevron-right"></v-icon>
-                    </template>
-                    </v-breadcrumbs>
-                </v-col>
+                
                 <v-col cols="3" >
                     <v-radio-group v-model="flag" inline style="margin-top: 10px;" >
                     <v-radio label="汇总" value="0" ></v-radio>
@@ -49,7 +43,7 @@
             </v-data-table>
 
 
-            <v-data-table v-show="flag==0" :headers="headers" :items="huizongList"   
+            <v-data-table v-show="flag==0" :headers="headers2" :items="huizongList"   
              :items-per-page="9999"  sticky :loading="loading" loading-text="正在加载中"
              no-data-text="暂无数据" hide-default-footer  
              style="width: 100%;font-size:12px;height: 750px;white-space: nowrap;" >
@@ -93,6 +87,24 @@
                     {title: '费用ID',key: 'ffyid'},
                     
                 ],
+                headers2: [
+                    {title: '就诊ID',key: 'fjiuzhenID'},
+                    {title: '姓名',key: 'fname'},
+                    {title: '性别',key: 'fsex'},
+                    {title: '年龄',key: 'fage'},
+                    {title: '门诊号',key: 'fmzh'},
+                    {title: '主要诊断',key: 'fzyzd'},
+                    {title: '开单医生',key: 'fkdys'},
+                    {title: '开单时间',key: 'fkdsj'},
+                    {title: '总价',key: 'fzj'},
+                    {title: '单据号',key: 'fdjh'},
+                    {title: '自费金额',key: 'fzfje'},
+                    {title: '总可报销金额',key: 'fzkbxje'},
+                    {title: '医保报销金额',key: 'fybbxje'},
+                    {title: '高龄补助金额',key: 'fglbzje'},
+                    
+                ],
+
                 danJuList: [],
                 loading: false,
                 selectedItem :null,
@@ -103,6 +115,7 @@
         },
         mounted() {
             this.loadData();
+            this.$emit('setbreadcrumbs',this.items);
         },
         methods:{
             // 刷新数据

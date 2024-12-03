@@ -1,13 +1,7 @@
 <template>
     <div>
         <v-container style="width:100%;margin:0;max-width: 100%;">
-            <v-row>
-                <v-breadcrumbs :items="items">
-                <template v-slot:divider>
-                    <v-icon icon="mdi-chevron-right"></v-icon>
-                </template>
-                </v-breadcrumbs>
-            </v-row>
+          
             <v-row no-gutters>
                 <v-col><v-btn @click="this.$router.replace('/RenYuanYiBaoXinxi');$emit('setTitle','人员医保信息查询')" size="x-large">人员医保信息查询</v-btn></v-col>
                 <v-col><v-btn size="x-large">更多功能正在开发中...</v-btn></v-col>
@@ -27,6 +21,9 @@ export default {
                     { title: "医保辅助功能"},
             ],
         }
+    },
+    mounted() {
+        this.$emit('setbreadcrumbs',this.items);
     },
     methods: {
        
