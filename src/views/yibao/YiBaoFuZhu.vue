@@ -4,6 +4,7 @@
           
             <v-row no-gutters>
                 <v-col><v-btn @click="this.$router.replace('/RenYuanYiBaoXinxi');$emit('setTitle','人员医保信息查询')" size="x-large">人员医保信息查询</v-btn></v-col>
+                <v-col><v-btn @click="this.$router.replace('/ZiFeiBingRenShangChuan');" size="x-large">全量自费病人信息上传</v-btn></v-col>
                 <v-col><v-btn size="x-large">更多功能正在开发中...</v-btn></v-col>
             </v-row>
         </v-container>
