@@ -22,12 +22,14 @@
            
         </v-row>
         <v-row justify="end" style="margin-top:5px;" v-show="flag==1" >
-            <v-btn @click="getYiBaoMingXi()" :loading="loading" size="x-large">查询已上传明细</v-btn>
+            <v-btn @click="getZhenDuanXinXi()" :loading="loading" size="x-large">查询已上传诊断</v-btn>
+            <v-btn @click="getYiBaoMingXi()" :loading="loading" size="x-large" style="margin-left:50px;">查询已上传明细</v-btn>
             <v-btn @click="uploadOne()" :loading="loading" size="x-large" style="margin-left:50px;">上传单个门诊数据</v-btn>
             <v-btn @click="uploadAll()" :loading="loading" size="x-large" style="margin-left:50px;margin-right:50px;">上传所有门诊数据</v-btn>
         </v-row>
         <v-row justify="end" style="margin-top:5px;" v-show="flag==2" >
-            <v-btn @click="getYiBaoMingXi()" :loading="loading" size="x-large">查询已上传明细</v-btn>
+            <v-btn @click="getZhenDuanXinXi()" :loading="loading" size="x-large">查询已上传诊断</v-btn>
+            <v-btn @click="getYiBaoMingXi()" :loading="loading" size="x-large" style="margin-left:50px;">查询已上传明细</v-btn>
             <v-btn @click="uploadZhuYuanOne()" :loading="loading" size="x-large" style="margin-left:50px;">上传单个住院数据</v-btn>
             <v-btn @click="uploadZhuYuanAll()" :loading="loading" size="x-large" style="margin-left:50px;margin-right:50px;">上传所有住院数据</v-btn>
         </v-row>
@@ -187,6 +189,7 @@ export default {
             mingxiList: [],
 
             yibaoMingXiList: [],
+            yibaoZhenDuanList: [],
         }
     },
 
@@ -269,17 +272,24 @@ export default {
             this.loading = true;
             let begintime = format(new Date(this.date[0]), 'yyyy-MM-dd 00:00:00');
             let endtime = format(new Date(this.date[1]) , 'yyyy-MM-dd 23:59:59');
-            const response = await this.$axios.post('/yibaofuzhu/getMenZhenZiFeiList',{begin_time:begintime,end_time:endtime});
-            if (response.data){
-                if(response.data.code == 0){
-                    let result = response.data;
-                    console.log(result);
-                    this.danJuList = result.result;
-                }else{
-                    this.danJuList = [];
-                    console.log(response.data);
+
+            try{
+                const response = await this.$axios.post('/yibaofuzhu/getMenZhenZiFeiList',{begin_time:begintime,end_time:endtime});
+                if (response.data){
+                    if(response.data.code == 0){
+                        let result = response.data;
+                        console.log(result);
+                        this.danJuList = result.result;
+                    }else{
+                        this.danJuList = [];
+                        console.log(response.data);
+                    }
                 }
+            }catch(e){
+                console.log(e);
             }
+
+            
             this.selectedItem = null;
             
             this.zhenduanList = [];
@@ -436,7 +446,6 @@ export default {
                     await this.uploadOne();
                 }
             }
-
             this.loading = false;
         },
         //上传住院所有未上传数据
@@ -482,6 +491,43 @@ export default {
                     console.log(response.data);
                 }
             }
+            this.loading = false;
+        },
+
+        //获取医保诊断信息
+        async getZhenDuanXinXi(){
+            let id = 0;
+            if (this.flag == '1'){
+                if (!this.selectedItem) {
+                    console.log('请先选择病人');
+                    return;
+                }
+                id = this.selectedItem.fixmedins_mdtrt_id;
+            }else{
+                if (!this.selectedZhuYuanItem) {
+                    console.log('请先选择病人');
+                    return;
+                }
+                id = this.selectedZhuYuanItem.fixmedins_mdtrt_id;
+            }
+
+            this.loading = true;
+            try{
+                const response = await this.$axios.post('/yibaofuzhu/getZhenDuanXinXi',{id:id});
+                if (response.data){
+                    if(response.data.code == 0){
+                        let result = response.data;
+                        console.log(result);
+                        this.yibaoZhenDuanList = result.result;
+                    }else{
+                        this.yibaoZhenDuanList = [];
+                        console.log(response.data);
+                    }
+                }
+            }catch(err){
+                console.log(err);
+            }
+            
             this.loading = false;
         },
 

@@ -23,12 +23,6 @@ const vuetify = createVuetify({
           mdi,
         },
       },
-      date: {
-        locale: {
-          en: 'zh-cn',
-        },
-      },
-
   })
 
 app.use(router)

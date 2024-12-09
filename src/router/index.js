@@ -9,6 +9,8 @@ import MenZhenJieZhangGuanLi from '@/views/shoufei/MenZhenJieZhangGuanLi.vue'
 import GaoLingZiFeiBiao from '@/views/shoufei/GaoLingZiFeiBiao.vue'
 import MenZhenTuiFei from '@/views/shoufei/MenZhenTuiFei.vue'
 import ZiFeiBingRenShangChuan from '@/views/yibao/ZiFeiBingRenShangChuan.vue'
+import UserManage from '@/views/user/UserManage.vue'
+import Login from '@/views/user/Login.vue'
 
 
 const router = createRouter({
@@ -24,6 +26,8 @@ const router = createRouter({
     {path:'/GaoLingZiFeiBiao',name:'GaoLingZiFeiBiao',component:GaoLingZiFeiBiao},
     {path:'/MenZhenTuiFei',name:'MenZhenTuiFei',component:MenZhenTuiFei},
     {path:'/ZiFeiBingRenShangChuan',name:'ZiFeiBingRenShangChuan',component:ZiFeiBingRenShangChuan},
+    {path:'/Login',name:'Login',component:Login},
+    {path:'/UserManage',name:'UserManage',component:UserManage},
 
   ]
 })
