@@ -1,25 +1,22 @@
 <template>
-    <v-container style="width:100%;margin:0;max-width: 100%;">
+    <div>
         
-    </v-container>
+    </div>
 </template>
 
 <script>
 
 export default {
-    name: 'UserManage',
+    name: 'ruyuan',
     data() {
         return {
-
+           
         }
     },
     mounted() {
-        
     },
     methods: {
-
+       
     },
-    
 }
-
 </script>

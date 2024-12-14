@@ -92,6 +92,7 @@
 
     import VueDatePicker from '@vuepic/vue-datepicker';
     import '@vuepic/vue-datepicker/dist/main.css'
+    import { format } from 'date-fns';
 
     export default {
         name: "MenZhenJieZhangGuanLi",
@@ -180,7 +181,9 @@
             // 获取单据列表
             async getDanJuList() {
                 this.loading = true;
-                const response = await this.$axios.post('/shoufei/jiezhangdanju',{begintime:this.date[0],endtime:this.date[1]});
+                let begintime = format(new Date(this.date[0]), 'yyyy-MM-dd 00:00:00');
+                let endtime = format(new Date(this.date[1]) , 'yyyy-MM-dd 23:59:59');
+                const response = await this.$axios.post('/shoufei/jiezhangdanju',{begintime:begintime,endtime:endtime});
                 if (response.data){
                     if(response.data.code == 0){
                         let result = response.data;

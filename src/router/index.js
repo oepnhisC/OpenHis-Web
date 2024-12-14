@@ -9,9 +9,11 @@ import MenZhenJieZhangGuanLi from '@/views/shoufei/MenZhenJieZhangGuanLi.vue'
 import GaoLingZiFeiBiao from '@/views/shoufei/GaoLingZiFeiBiao.vue'
 import MenZhenTuiFei from '@/views/shoufei/MenZhenTuiFei.vue'
 import ZiFeiBingRenShangChuan from '@/views/yibao/ZiFeiBingRenShangChuan.vue'
-import UserManage from '@/views/user/UserManage.vue'
+import UserManage from '@/views/manager/UserManage.vue'
 import Login from '@/views/user/Login.vue'
-
+import ruyuan from '@/views/zhuyuan/ruyuan.vue'
+import PermissionManager from '@/views/manager/PermissionManager.vue'
+import HISManager from '@/views/manager/HISManager.vue'
 
 const router = createRouter({
   history: createWebHashHistory(import.meta.env.BASE_URL),
@@ -28,6 +30,9 @@ const router = createRouter({
     {path:'/ZiFeiBingRenShangChuan',name:'ZiFeiBingRenShangChuan',component:ZiFeiBingRenShangChuan},
     {path:'/Login',name:'Login',component:Login},
     {path:'/UserManage',name:'UserManage',component:UserManage},
+    {path:'/ruyuan',name:'ruyuan',component:ruyuan},
+    {path:'/PermissionManager',name:'PermissionManager',component:PermissionManager},
+    {path:'/HISManager',name:'HISManager',component:HISManager},
 
   ]
 })
