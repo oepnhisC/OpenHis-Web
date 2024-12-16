@@ -2,13 +2,13 @@
 	<v-container style="width:100%;margin:0;max-width: 100%;">
 		<v-row>
             <v-col><v-btn  @click="refresh()" :loading="loading"  size="x-large">刷新</v-btn></v-col>
-            <v-col><v-btn  @click="goToAdd()" :loading="loading"  size="x-large">选中的接口加入权限库</v-btn></v-col>
+            <v-col><v-btn  @click="goToAddPermission()" :loading="loading"  size="x-large">选中的接口加入权限库</v-btn></v-col>
         </v-row>
 		<v-row>
 			<v-col>
 				<v-data-table :headers="allAPIheaders" :items="allAPIList"  
 					:items-per-page="200"   :loading="loading" loading-text="正在加载中"
-					no-data-text="暂无数据"  sticky  dense style=" font-size:12px;height: 450px;" >
+					no-data-text="暂无数据"  sticky  dense style=" font-size:12px;height: 350px;" >
 					<template v-slot:item="{ item }">
 					<tr :class="{'highlighted':selectedItem === item }" 
 						@click="selectRow(item)" style="white-space: nowrap;">
@@ -21,8 +21,34 @@
 			<v-col>
 				<v-data-table :headers="permissionHeaders" :items="permissionList"  
 					:items-per-page="200"   :loading="loading" loading-text="正在加载中"
-					no-data-text="暂无数据"  sticky  dense style=" font-size:12px;height: 450px;" >
+					no-data-text="暂无数据"  sticky  dense style=" font-size:12px;height: 350px;" >
+					<template v-slot:item="{ item }">
+					<tr :class="{'highlighted':selectedPermission === item }" 
+						@click="selectPermission(item)" style="white-space: nowrap;">
+						<td>{{ item.pername }}</td>
+						<td>{{ item.perpath }}</td>
+					</tr>
+					</template>
 				</v-data-table>
+			</v-col>
+		</v-row>
+
+		<v-row>
+			<v-col>
+				<v-data-table :headers="roleHeaders" :items="roleList"  
+					:items-per-page="200"   :loading="loading" loading-text="正在加载中"
+					no-data-text="暂无数据"  sticky  dense style=" font-size:12px;height: 350px;" >
+					<template v-slot:item="{ item }">
+					<tr :class="{'highlighted':selectedRole === item }" 
+						@click="selectRole(item)" style="white-space: nowrap;">
+						<td>{{ item.rolename }}</td>
+					</tr>
+					</template>
+				</v-data-table>
+			</v-col>
+			<v-col>
+				<v-btn :loading="loading"  size="x-large" @click="goToAddRole()">添加角色</v-btn>
+				<v-btn :loading="loading"  size="x-large" @click="addPermissionToRole()">为角色添加权限</v-btn>
 			</v-col>
 		</v-row>
 
@@ -33,10 +59,22 @@
                 <v-alert density="compact" title="失败" type="error"  v-show="errFlag">{{ errmsg }}</v-alert>
                 <template v-slot:actions>
                     <v-btn :loading="loading" size="x-large"  variant="tonal" text="确定" @click="addPermission()" color="success" prepend-icon="mdi-check-circle"></v-btn>
-                    <v-btn :loading="loading" size="x-large"  variant="tonal" text="取消" @click="cancelAdd()" color="red"   prepend-icon="mdi-cancel"></v-btn>    
+                    <v-btn :loading="loading" size="x-large"  variant="tonal" text="取消" @click="cancelAddPermission()" color="red"   prepend-icon="mdi-cancel"></v-btn>    
                 </template>
             </v-card>
         </v-dialog>
+
+		<v-dialog v-model="roleDialog" width="400">
+            <v-card max-width="400" title="添加角色">
+                <v-text-field label="角色名称" v-model="roleName" required hide-details  ></v-text-field>
+                <v-alert density="compact" title="失败" type="error"  v-show="errFlag">{{ errmsg }}</v-alert>
+                <template v-slot:actions>
+                    <v-btn :loading="loading" size="x-large"  variant="tonal" text="确定" @click="addRole()" color="success" prepend-icon="mdi-check-circle"></v-btn>
+                    <v-btn :loading="loading" size="x-large"  variant="tonal" text="取消" @click="cancelAddRole()" color="red"   prepend-icon="mdi-cancel"></v-btn>    
+                </template>
+            </v-card>
+        </v-dialog>
+
 		<v-snackbar v-model="warningFlag"  color="warning" >{{ warningmsg }}</v-snackbar>
 		<v-snackbar v-model="successFlag"  color="success" >操作成功!!!</v-snackbar>
 	</v-container>
@@ -44,8 +82,6 @@
 
 
 <script>
-import { ref } from 'vue';
-
 
 export default {
 	name: 'PermissionManager',
@@ -57,8 +93,8 @@ export default {
 				{ title: "权限管理"},
 			],
 			permissionHeaders:[
-				{ title: '权限名称',key:'pername' },
-				{ title: 'API路径' ,key:'perpath' },
+				{ title: '权限名称',value:'pername' },
+				{ title: 'API路径' ,value:'perpath' },
 			],
 			permissionList: [],
 			loading: false,
@@ -76,6 +112,14 @@ export default {
 			warningFlag: false,
 			warningmsg: '',
 			successFlag: false,
+			roleHeaders: [
+				{ title: '角色名称',key:'rolename' },
+			],
+			roleList: [],
+			roleDialog: false,
+			roleName: '',
+			selectedPermission: null,
+			selectedRole: null,
 		}
 	},
 	mounted() {
@@ -146,7 +190,7 @@ export default {
 				console.log(result); 
                 if(result.code == 0){
                     this.successFlag = true;
-					this.cancelAdd();
+					this.cancelAddPermission();
                     this.getPermissionList();
                 } else{
 					this.errFlag = true;
@@ -155,26 +199,25 @@ export default {
             }
             this.loading = false;
 
-
 		},
-		goToAdd(){
+		// 去添加权限
+		goToAddPermission(){
 
 			if(this.selectedItem == null){
 				this.warningFlag = true;
 				this.warningmsg = '请先选择一个接口';
 				return;
 			}
-
 			if (this.addedPermission(this.selectedItem.url) == '已添加'){
 				this.warningFlag = true;
 				this.warningmsg = '该接口已添加权限';
 				return;
 			}
-
 			this.apiPath = this.selectedItem.url;
 			this.dialog = true;
 		},
-		cancelAdd(){
+		// 取消添加权限
+		cancelAddPermission(){
 			this.apiPath = '';
 			this.perName = '';
 			this.dialog = false;
@@ -183,6 +226,11 @@ export default {
 		refresh() {
 			this.getPermissionList();
 			this.getAllAPIList();
+			this.getRoleList();
+			this.selectedPermission = null;
+			this.selectedRole = null;
+			this.selectedItem = null;
+
 		},
 		// 判断是否已经添加权限
 		addedPermission(url){
@@ -193,6 +241,100 @@ export default {
 			}
 			return '';
 		},
+
+		// 获取角色列表
+		async getRoleList() {
+            this.loading = true;
+            const response = await this.$axios.get('/permissionManger/getRoleList');
+            if (response.data){
+				let result = response.data;
+				console.log(result); 
+                if(result.code == 0){
+                    this.roleList = result.result;
+                } else{
+                    this.roleList = [];
+                    console.log(result);
+                }
+            }
+            this.loading = false;
+		},
+		// 去添加角色
+		goToAddRole(){
+			this.roleName = '';
+			this.roleDialog = true;
+		},
+		// 取消添加角色
+		cancelAddRole(){
+			this.roleName = '';
+			this.roleDialog = false;
+		},
+		// 添加角色
+		async addRole() {
+			if(this.roleName == ''){
+				this.errFlag = true;
+				this.errmsg = '角色名称不能为空';
+				return;
+			}
+
+			this.loading = true;
+            const response = await this.$axios.post('/permissionManger/addRole',{name:this.roleName});
+            if (response.data){
+				let result = response.data;
+				console.log(result); 
+                if(result.code == 0){
+                    this.successFlag = true;
+					this.cancelAddRole();
+                    this.getRoleList();
+                } else{
+					this.errFlag = true;
+					this.errmsg = result.result;
+                }
+            }
+            this.loading = false;
+		},
+		// 为角色添加权限
+		async addPermissionToRole() {
+			if(this.selectedPermission == null){
+				this.warningFlag = true;
+				this.warningmsg = '请先选择一个权限';
+				return;
+			}
+			if(this.selectedRole == null){
+				this.warningFlag = true;
+				this.warningmsg = '请先选择一个角色';
+				return;
+			}
+
+			this.loading = true;
+            const response = await this.$axios.post('/permissionManger/addPermissionToRole',{PermissionID:this.selectedPermission.perid,RoleID:this.selectedRole.roleid});
+            if (response.data){
+				let result = response.data;
+				console.log(result); 
+                if(result.code == 0){
+                    this.successFlag = true;
+					this.selectedPermission = null;
+					this.selectedRole = null;
+                } else{
+					this.errFlag = true;
+					this.errmsg = result.result;
+                }
+            }
+            this.loading = false;
+
+		},
+
+		// 选择权限
+		selectPermission(item) {
+			console.log(item);
+			this.selectedPermission = item;
+		},
+		// 选择角色
+		selectRole(item) {
+			console.log(item);
+			this.selectedRole = item;
+		},
+
+
   	}
 }
 
