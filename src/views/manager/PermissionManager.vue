@@ -47,8 +47,23 @@
 				</v-data-table>
 			</v-col>
 			<v-col>
-				<v-btn :loading="loading"  size="x-large" @click="goToAddRole()">添加角色</v-btn>
-				<v-btn :loading="loading"  size="x-large" @click="addPermissionToRole()">为角色添加权限</v-btn>
+				<v-row>
+					<v-btn :loading="loading"  size="large" @click="goToAddRole()">添加角色</v-btn>
+					<v-btn :loading="loading"  size="large" @click="addPermissionToRole()" style="margin-left:10px">为角色添加权限</v-btn>
+				</v-row>
+				<v-row>
+					<v-data-table :headers="rolePerHeaders" :items="rolePerList"  
+						:items-per-page="200"   :loading="loading" loading-text="正在加载中"
+						no-data-text="暂无数据"  sticky  dense style=" font-size:12px;height: 280px;margin-top:20px" >
+						<template v-slot:item="{ item }">
+						<tr :class="{'highlighted':selectedRolePer === item }" 
+							@click="selectRolePer(item)" style="white-space: nowrap;">
+							<td>{{ item.pername }}</td>
+							<td>{{ item.perpath }}</td>
+						</tr>
+						</template>
+					</v-data-table>
+				</v-row>
 			</v-col>
 		</v-row>
 
@@ -93,8 +108,8 @@ export default {
 				{ title: "权限管理"},
 			],
 			permissionHeaders:[
-				{ title: '权限名称',value:'pername' },
-				{ title: 'API路径' ,value:'perpath' },
+				{ title: '权限名称',key:'pername' },
+				{ title: 'API路径' ,key:'perpath' },
 			],
 			permissionList: [],
 			loading: false,
@@ -120,6 +135,13 @@ export default {
 			roleName: '',
 			selectedPermission: null,
 			selectedRole: null,
+			rolePerHeaders: [
+				{ title: '权限名称',key:'pername' },
+				{ title: 'API路径' ,key:'perpath' },
+			],
+			rolePerList: [],
+
+			selectedRolePer: null,
 		}
 	},
 	mounted() {
@@ -127,7 +149,7 @@ export default {
         this.$emit('setTitle','权限管理');
 		this.getPermissionList();
 		this.getAllAPIList();
-
+		this.getRoleList();
 	},
   	methods: {
 		// 获取所有api列表
@@ -313,10 +335,10 @@ export default {
                 if(result.code == 0){
                     this.successFlag = true;
 					this.selectedPermission = null;
-					this.selectedRole = null;
+					this.getRolePermissionList();
                 } else{
-					this.errFlag = true;
-					this.errmsg = result.result;
+					this.warningFlag = true;
+					this.warningmsg = result.result;
                 }
             }
             this.loading = false;
@@ -332,6 +354,30 @@ export default {
 		selectRole(item) {
 			console.log(item);
 			this.selectedRole = item;
+			this.getRolePermissionList();
+		},
+
+		// 获取角色权限列表
+		async getRolePermissionList() {
+            this.loading = true;
+            const response = await this.$axios.post('/permissionManger/getRolesPermission',{id:this.selectedRole.roleid});
+            if (response.data){
+				let result = response.data;
+				console.log(result); 
+                if(result.code == 0){
+                    this.rolePerList = result.result;
+                } else{
+                    this.rolePerList = [];
+                    console.log(result);
+                }
+            }
+            this.loading = false;
+		},
+
+		// 选择角色权限
+		selectRolePer(item) {
+			console.log(item);
+			this.selectedRolePer = item;
 		},
 
 
