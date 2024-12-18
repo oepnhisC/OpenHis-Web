@@ -25,13 +25,15 @@
             <v-btn @click="getZhenDuanXinXi()" :loading="loading" size="x-large">查询已上传诊断</v-btn>
             <v-btn @click="getYiBaoMingXi()" :loading="loading" size="x-large" style="margin-left:50px;">查询已上传明细</v-btn>
             <v-btn @click="uploadOne()" :loading="loading" size="x-large" style="margin-left:50px;">上传单个门诊数据</v-btn>
-            <v-btn @click="uploadAll()" :loading="loading" size="x-large" style="margin-left:50px;margin-right:50px;">上传所有门诊数据</v-btn>
+            <v-btn @click="uploadAll()" :loading="allLoadding || loading" size="x-large" style="margin-left:50px;">上传所有门诊数据</v-btn>
+            <v-btn @click="pauseUpload()"  size="x-large" style="margin-left:50px;margin-right:50px;">暂停上传</v-btn>
         </v-row>
         <v-row justify="end" style="margin-top:5px;" v-show="flag==2" >
             <v-btn @click="getZhenDuanXinXi()" :loading="loading" size="x-large">查询已上传诊断</v-btn>
             <v-btn @click="getYiBaoMingXi()" :loading="loading" size="x-large" style="margin-left:50px;">查询已上传明细</v-btn>
             <v-btn @click="uploadZhuYuanOne()" :loading="loading" size="x-large" style="margin-left:50px;">上传单个住院数据</v-btn>
-            <v-btn @click="uploadZhuYuanAll()" :loading="loading" size="x-large" style="margin-left:50px;margin-right:50px;">上传所有住院数据</v-btn>
+            <v-btn @click="uploadZhuYuanAll()" :loading="allLoadding || loading" size="x-large" style="margin-left:50px;margin-right:50px;">上传所有住院数据</v-btn>
+            <v-btn @click="pauseUpload()" size="x-large" style="margin-left:50px;margin-right:50px;">暂停上传</v-btn>
         </v-row>
         <v-row>
             <v-col v-show="flag==1" >
@@ -101,7 +103,7 @@
                 style="font-size:12px;height: 350px;white-space: nowrap;" >
             </v-data-table>
         </v-row> -->
-
+        <v-snackbar v-model="warningFlag"  color="warning" >{{ warningmsg }}</v-snackbar>
     </v-container>
 </template>
 
@@ -190,6 +192,11 @@ export default {
 
             yibaoMingXiList: [],
             yibaoZhenDuanList: [],
+
+            pauseUploadFlag: true,
+            warningFlag: false,
+            warningmsg: '',
+            allLoadding: false,
         }
     },
 
@@ -251,7 +258,9 @@ export default {
         },
         // 选择单据
         async selectRow(item) {
-            console.log(item);
+            if(this.loading || this.allLoadding){
+                return;
+            }
             if (this.selectedItem === item) {
                 return;
             }
@@ -261,7 +270,9 @@ export default {
         },
         // 选择住院单据
         async selectZhuYuanRow(item) {
-            console.log(item);
+            if(this.loading || this.allLoadding){
+                return;
+            }
             if (this.selectedZhuYuanItem === item) {
                 return;
             }
@@ -380,6 +391,7 @@ export default {
                 console.log('请先选择病人');
                 return;
             }
+
             this.loading = true;
             const response = await this.$axios.post('/yibaofuzhu/uploadOneZhuYuan',{id:this.selectedZhuYuanItem.fixmedins_mdtrt_id});
             if (response.data){
@@ -393,6 +405,7 @@ export default {
                 }
             }
             this.loading = false;
+
         },
 
 
@@ -435,30 +448,55 @@ export default {
             this.loading = false;
         },
 
+        sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        },
 
         //上传门诊所有未上传数据
         async uploadAll() {
-            this.loading = true;
+            this.allLoadding = true;
+            this.pauseUploadFlag = false;
             let count = this.danJuList.length;
             for(let i=0; i < count ;i++){
                 if(this.danJuList[i].FSTATE != 'UPLOADED'){
                     this.selectedItem = this.danJuList[i];
                     await this.uploadOne();
+                    await this.sleep(2000);
+                    if(this.pauseUploadFlag){
+                        break;
+                    }
                 }
             }
-            this.loading = false;
+            this.allLoadding = false;
         },
         //上传住院所有未上传数据
         async uploadZhuYuanAll() {
-            this.loading = true;
+            this.allLoadding = true;
+            this.pauseUploadFlag = false;
             let count = this.zhuyuanList.length;
             for(let i=0; i < count ;i++){
                 if(this.zhuyuanList[i].FSTATE != 'UPLOADED'){
                     this.selectedZhuYuanItem = this.zhuyuanList[i];
                     await this.uploadZhuYuanOne();
+                    await this.sleep(2000);
+                    if(this.pauseUploadFlag){
+                        
+                        break;
+                    }
                 }
             }
-            this.loading = false;
+            this.allLoadding = false;
+        },
+
+        //暂停上传
+        async pauseUpload() {
+            if(this.pauseUploadFlag){
+                this.warningFlag = true;
+                this.warningmsg = '未开始上传，无法暂停';
+                return;
+            }
+
+            this.pauseUploadFlag = true;
         },
 
         //获取医保明细
