@@ -461,7 +461,7 @@ export default {
                 if(this.danJuList[i].FSTATE != 'UPLOADED'){
                     this.selectedItem = this.danJuList[i];
                     await this.uploadOne();
-                    await this.sleep(2000);
+                    await this.sleep(1000);
                     if(this.pauseUploadFlag){
                         break;
                     }

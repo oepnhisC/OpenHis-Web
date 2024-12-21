@@ -1,22 +1,50 @@
 <template>
     <v-container style="width:100%;margin:0;max-width: 100%;">
         <v-row>
-            <v-col align='left' cols="3"><v-text-field v-model="search" append-icon="mdi-magnify" label="从加载数据中查找" single-line hide-details  clearable stlye="height: 20px;"></v-text-field></v-col>
+            <v-col align='left' cols="3"><v-text-field v-model="search" append-icon="mdi-magnify" label="从加载数据中查找用户" single-line hide-details  clearable stlye="height: 20px;"></v-text-field></v-col>
             <v-col><v-btn  @click="getUserList" size="x-large">刷新</v-btn></v-col>
             <v-col><v-btn  @click="dialog = true" size="x-large">添加用户</v-btn></v-col>
+            <v-col><v-btn  @click="addRoleToUser()" size="x-large">为用户添加角色</v-btn></v-col>
         </v-row>
-        <v-data-table :headers="headers" :items="userList"  :search="search"
-            :items-per-page="9999"  sticky :loading="loading" loading-text="正在加载中"
-            no-data-text="暂无数据" hide-default-footer   dense 
-            style="width: 100%;font-size:12px;height: 450px;" >
-            <template v-slot:item="{ item }">
-            <tr :class="{'highlighted':selectedItem === item }" 
-                @click="selectRow(item)" style="white-space: nowrap;">
-                <td>{{ item.fno }}</td>
-                <td>{{ item.fname }}</td>
-            </tr>
-            </template>
-        </v-data-table>
+
+        <v-row>
+            <v-col>
+                <v-data-table :headers="headers" :items="userList"  :search="search"
+                    :items-per-page="200"  sticky :loading="loading" loading-text="正在加载中"
+                    no-data-text="暂无数据"   dense 
+                    style="width: 100%;font-size:12px;height: 700px;" >
+                    <template v-slot:item="{ item }">
+                    <tr :class="{'highlighted':selectedItem === item }" 
+                        @click="selectRow(item)" style="white-space: nowrap;">
+                        <td>{{ item.fno }}</td>
+                        <td>{{ item.fname }}</td>
+                    </tr>
+                    </template>
+                </v-data-table>
+            </v-col>
+            <v-col>
+                <v-data-table :headers="userRoleHeaders" :items="userRoleList" 
+                    :items-per-page="200"  sticky :loading="loading" loading-text="正在加载中"
+                    no-data-text="暂无数据"    dense 
+                    style="width: 100%;font-size:12px;height: 700px;" >
+                </v-data-table>
+            </v-col>
+
+            <v-col>
+                <v-data-table :headers="roleHeaders" :items="roleList"  
+					:items-per-page="200"   :loading="loading" loading-text="正在加载中"
+					no-data-text="暂无数据"  sticky  dense style=" font-size:12px;height: 700px;" >
+					<template v-slot:item="{ item }">
+					<tr :class="{'highlighted':selectedRole === item }" 
+						@click="selectRole(item)" style="white-space: nowrap;">
+						<td>{{ item.rolename }}</td>
+					</tr>
+					</template>
+				</v-data-table>
+               
+            </v-col>
+
+        </v-row>
 
         <v-dialog v-model="dialog" width="400">
             <v-card max-width="400" title="添加用户">
@@ -31,6 +59,7 @@
             </v-card>
         </v-dialog>
         <v-snackbar v-model="successFlag"  color="success" >操作成功!</v-snackbar>
+        <v-snackbar v-model="warningFlag"  color="warning" >{{ warningmsg }}</v-snackbar>
     </v-container>
 </template>
 
@@ -62,12 +91,26 @@ export default {
             successFlag: false,
             errFlag: false,
             errmsg: '',
+
+            userRoleHeaders:[
+                {title:'用户拥有的角色',key:'fname'}
+            ],
+            userRoleList:[],
+
+            roleHeaders:[
+                {title:'所有角色名',key:'rolename'},
+            ],
+            roleList:[],
+            selectedRole:null,
+            warningFlag: false,
+            warningmsg: '',
         }
     },
     mounted() {
         this.$emit('setbreadcrumbs',this.items);
         this.$emit('setTitle','用户管理');
         this.getUserList();
+        this.getRoleList();
     },
     methods: {
         async getUserList() {
@@ -89,6 +132,7 @@ export default {
         async selectRow(item) {
             console.log(item);
             this.selectedItem = item;
+            this.getUserRoleList();
         },
 
         // 新增用户
@@ -128,6 +172,74 @@ export default {
             this.password = '';
             this.password2 = '';
         },
+
+        // 获取角色列表
+		async getRoleList() {
+            this.loading = true;
+            const response = await this.$axios.get('/permissionManger/getRoleList');
+            if (response.data){
+				let result = response.data;
+				console.log(result); 
+                if(result.code == 0){
+                    this.roleList = result.result;
+                } else{
+                    this.roleList = [];
+                    console.log(result);
+                }
+            }
+            this.loading = false;
+		},
+        // 选择角色
+		selectRole(item) {
+			console.log(item);
+			this.selectedRole = item;
+		},
+
+        // 获取用户角色列表
+        async getUserRoleList() {
+            this.loading = true;
+            const response = await this.$axios.post('/userManger/getUserRoleList',{id:this.selectedItem.fuid});
+            if (response.data){
+                let result = response.data;
+                console.log(result);
+                if(result.code == 0){
+                    this.userRoleList = result.result;
+                } else{
+                    this.userRoleList = [];
+                    console.log(result);
+                }
+            }
+            this.loading = false;
+        },
+
+        // 为用户添加角色
+        async addRoleToUser() {
+            if (this.selectedItem == null){
+                this.warningmsg = '请先选择用户';
+                this.warningFlag = true;
+                return;
+            }
+            if(this.selectedRole == null){
+                this.warningmsg = '请先选择角色';
+                this.warningFlag = true;
+                return;
+            }
+            this.loading = true;
+            const response = await this.$axios.post('/userManger/addRoleToUser',{userid:this.selectedItem.fuid,roleid:this.selectedRole.roleid});
+            if (response.data){
+                let result = response.data;
+                console.log(result);
+                if(result.code == 0){
+                    this.successFlag = true;
+                    this.getUserRoleList();
+                } else{
+                    this.warningmsg = result.result;
+                    this.warningFlag = true;
+                }
+            }
+            this.loading = false;
+        },
+
 
 
     },

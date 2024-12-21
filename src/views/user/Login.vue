@@ -7,13 +7,15 @@
 </template>
 
 <script>
+import { mapActions } from 'vuex';
+
  
 export default {
   name: 'Login',
   data() {
     return {
         items: [
-                { title: "登录"},
+			{ title: "登录"},
         ],
         username: '',
         password: '',
@@ -25,21 +27,27 @@ export default {
     this.$emit('setbreadcrumbs',this.items);
   },
   methods: {
+	...mapActions(['updatePermissions']),
     async login(){
         this.loading = true;
-          const response = await this.$axios.post('/user/login',{username:this.username,password:this.password});
-          if (response.data){
-			  console.log(response.data);
-			  let result = response.data;
-              if(result.code == 0){
-				  let token=result.result;
-				  this.$axios.defaults.headers.common['Authorization'] = 'Bearer '+token;
-				  this.$router.replace('/');
-              }else{
-
-              }
-          }
-          this.loading = false;
+		const response = await this.$axios.post('/user/login',{username:this.username,password:this.password});
+		if (response.data){
+			console.log(response.data);
+			let result = response.data;
+			if(result.code == 0){
+				let token=result.result;
+				this.$axios.defaults.headers.common['Authorization'] = 'Bearer '+token;
+				let permissions = [];
+				for(let i=0;i<result.permission.length;i++){
+					permissions.push(result.permission[i].fpath);
+				}
+				this.updatePermissions(permissions);
+				this.$router.replace('/');
+			}else{
+				
+			}
+		}
+		this.loading = false;
     },
   }
 }

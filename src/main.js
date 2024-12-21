@@ -9,6 +9,7 @@ import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
 import { aliases, mdi } from 'vuetify/iconsets/mdi'
 import '@mdi/font/css/materialdesignicons.css'
+import store from './store'
 
 axios.defaults.baseURL = 'http://127.0.0.1:10888'
 
@@ -27,6 +28,7 @@ const vuetify = createVuetify({
 
 app.use(router)
 app.use(vuetify)
+app.use(store)
 
 app.config.globalProperties.$axios = axios;
 
