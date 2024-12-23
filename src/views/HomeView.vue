@@ -2,9 +2,9 @@
   <v-container style="width: 100%;min-height: 700px;">
     <v-row>
       <v-col><v-btn @click="this.$router.replace('/Login');$emit('setTitle','登录')" size="x-large">登录</v-btn></v-col>
-      <v-col><v-btn v-if="hasPermission('/yibaofuzhu')" @click="this.$router.replace('/yibaofuzhu');$emit('setTitle','医保辅助功能')" size="x-large">医保辅助功能</v-btn></v-col>
+      <v-col v-if="this.$hasPermission('yibaofuzhu')"><v-btn  @click="this.$router.replace('/yibaofuzhu');$emit('setTitle','医保辅助功能')" size="x-large">医保辅助功能</v-btn></v-col>
       <v-col><v-btn @click="this.$router.replace('/MenZhenJZGuanLi');$emit('setTitle','门诊结账管理')" size="x-large">门诊结账管理</v-btn></v-col>
-      <v-col><v-btn v-if="hasPermission('/shoufei/gaolingjifeihuizong')" @click="this.$router.replace('/GaoLingZiFeiBiao');$emit('setTitle','高龄自费计算表')" size="x-large">高龄自费计算表</v-btn></v-col>
+      <v-col v-if="this.$hasPermission('gaolingjifeihuizong')"><v-btn  @click="this.$router.replace('/GaoLingZiFeiBiao');$emit('setTitle','高龄自费计算表')" size="x-large">高龄自费计算表</v-btn></v-col>
       <v-col><v-btn @click="this.$router.replace('/dad');$emit('setTitle','病人入院管理')" size="x-large" color="green" >病人入院管理</v-btn></v-col>
       <v-col><v-btn @click="this.$router.replace('/HISManager');" size="x-large" >管理员功能</v-btn></v-col>
 
@@ -33,7 +33,6 @@
 
 
 <script>
-import { mapState } from 'vuex';
 
 
 export default {
@@ -45,20 +44,13 @@ export default {
 	}),
 	mounted:function(){
 		this.$emit('setbreadcrumbs',this.items);
+
 	},
 	computed:{
-		...mapState(['permissions']),
+
 	},
 	methods: {
-		hasPermission(permission){
-			for(let i=0;i<this.permissions.length;i++){
-				console.log(this.permissions[i],permission);
-				if(this.permissions[i].includes(permission)){
-					return true;
-				}
-			}
-			return false;
-		}
+	
 
 	},
 
