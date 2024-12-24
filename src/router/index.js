@@ -14,6 +14,9 @@ import Login from '@/views/user/Login.vue'
 import ruyuan from '@/views/zhuyuan/ruyuan.vue'
 import PermissionManager from '@/views/manager/PermissionManager.vue'
 import HISManager from '@/views/manager/HISManager.vue'
+import dad from '@/views/zhuyuan/dad.vue'
+import ruyuan02 from '@/views/zhuyuan/ruyuan02.vue'
+import ChangePassword from '@/views/user/ChangePassword.vue'
 
 const router = createRouter({
   history: createWebHashHistory(import.meta.env.BASE_URL),
@@ -31,8 +34,11 @@ const router = createRouter({
     {path:'/Login',name:'Login',component:Login},
     {path:'/UserManage',name:'UserManage',component:UserManage},
     {path:'/ruyuan',name:'ruyuan',component:ruyuan},
+    {path:'/dad',name:'dad',component:dad},
+    {path:'/ruyuan02',name:'ruyuan02',component:ruyuan02},
     {path:'/PermissionManager',name:'PermissionManager',component:PermissionManager},
     {path:'/HISManager',name:'HISManager',component:HISManager},
+    {path:'/ChangePassword',name:'ChangePassword',component:ChangePassword},
 
   ]
 })

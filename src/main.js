@@ -34,13 +34,14 @@ app.config.globalProperties.$axios = axios;
 
 // 权限判断方法
 app.config.globalProperties.$hasPermission = function(permission) {
-	let permissions = this.$store.state['permissions'];
-	for(let i=0;i<permissions.length;i++){
-		if(permissions[i].includes(permission)){
-			return true;
-		}
-	}
-	return false;
+	// let permissions = this.$store.state['permissions'];
+	// for(let i=0;i<permissions.length;i++){
+	// 	if(permissions[i].includes(permission)){
+	// 		return true;
+	// 	}
+	// }
+	// return false;
+	return true;      // 开发环境
 };
 
 app.mount('#app')
