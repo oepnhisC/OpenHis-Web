@@ -17,6 +17,7 @@ import HISManager from '@/views/manager/HISManager.vue'
 import dad from '@/views/zhuyuan/dad.vue'
 import ruyuan02 from '@/views/zhuyuan/ruyuan02.vue'
 import ChangePassword from '@/views/user/ChangePassword.vue'
+import JianYiGuaHao from '@/views/menzhen/JianYiGuaHao.vue'
 
 const router = createRouter({
   history: createWebHashHistory(import.meta.env.BASE_URL),
@@ -39,6 +40,7 @@ const router = createRouter({
     {path:'/PermissionManager',name:'PermissionManager',component:PermissionManager},
     {path:'/HISManager',name:'HISManager',component:HISManager},
     {path:'/ChangePassword',name:'ChangePassword',component:ChangePassword},
+    {path:'/JianYiGuaHao',name:'JianYiGuaHao',component:JianYiGuaHao},
 
   ]
 })

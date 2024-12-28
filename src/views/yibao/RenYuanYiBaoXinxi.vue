@@ -11,6 +11,7 @@
                     <!-- <v-row no-gutters><v-text-field hide-details v-model="begntime" label="开始时间"></v-text-field></v-row> -->
                     <v-row no-gutters><v-select hide-details v-model="psn_cert_type" :items="options2" label="人员证件类型(一般不用选)"></v-select></v-row>
                     <v-row no-gutters><v-text-field hide-details v-model="insuplc_admdvs" label="参保地区划（一般外省才需要填）" clearable></v-text-field></v-row>
+                    <v-row no-gutters><v-text-field hide-details v-model="psn_name" label="参保人姓名（一般外省才需要填）" clearable></v-text-field></v-row>
                     <v-row><v-col align="center"><v-btn size="x-large" @click="personInfo()" :loading="loading">查询</v-btn></v-col></v-row>
                     
                 </v-col>

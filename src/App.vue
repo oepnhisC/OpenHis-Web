@@ -109,3 +109,11 @@ export default {
 };
 
 </script>
+
+<style>
+::-webkit-scrollbar{width:6px;height: 6px;}
+::-webkit-scrollbar-track{background:rgb(239,239,239);border-radius: 2px;}
+::-webkit-scrollbar-thumb{background-color:#666f7799;border-radius: 10px;}
+::-webkit-scrollbar-thumb:hover{background-color:#3b8ee288;}
+
+</style>
