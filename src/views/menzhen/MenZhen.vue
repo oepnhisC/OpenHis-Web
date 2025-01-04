@@ -3,7 +3,7 @@
 
 	<div style="width: 100vw;padding:0;height: 93vh;">
 		<div>
-			<v-btn @click="$router.replace('/JianYiGuaHao')">挂号</v-btn>
+			<v-btn @click="showJianYiGuaHao = !showJianYiGuaHao">挂号</v-btn>
 			<v-btn >接诊</v-btn>
 			<v-btn >新开医嘱</v-btn>
 			<v-btn >修改医嘱</v-btn>
@@ -66,7 +66,9 @@
 			</VueDragResize>
 		</div>
 		
-		<!-- <JianYiGuaHao></JianYiGuaHao> -->
+		<JianYiGuaHao :show="showJianYiGuaHao">
+			
+		</JianYiGuaHao>
 	</div>
 		
 				
@@ -145,6 +147,8 @@ export default {
 			HZZIndex:1,
 			HZActive:false,
 			JZActive:false,
+
+			showJianYiGuaHao:false,
 
 		};
 	},
