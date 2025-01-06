@@ -39,7 +39,7 @@
 
 
 <script >
-
+import { addData, getData } from '@/services/indexedDBService';
 import { mapActions } from 'vuex';
 
 export default {
@@ -59,27 +59,29 @@ export default {
   },
   mounted() {
     // this.goHome();
+	this.getAddress();
   },
   beforeDestroy() {
     this.drawer = false;
   },
+
   methods: {
-	...mapActions(['updatePermissions']),
+	...mapActions(['updatePermissions','updateAddress']),
     goHome() {
-      this.$router.replace('/');
-      this.mytitle = '首页';
-      this.drawer = false;
+		this.$router.replace('/');
+		this.mytitle = '首页';
+		this.drawer = false;
     },
     setTitle(title) {
-      this.mytitle = title;
+      	this.mytitle = title;
     },
     setbreadcrumbs(items) {
-      this.items = items;
+      	this.items = items;
     },
 	
     Login() {
-      this.$router.replace('/Login');
-      this.drawer = false;
+		this.$router.replace('/Login');
+		this.drawer = false;
     },
 	async logOut(){
 		const response = await this.$axios.post('/user/logout');
@@ -98,13 +100,43 @@ export default {
 				this.warningmsg = result.result;
 			}
 		}
-
 		
 	},
 	setUserInfo(userinfo) {
-      this.username = userinfo.username;
-      this.ip = userinfo.ip;
+		this.username = userinfo.username;
+		this.ip = userinfo.ip;
 	},
+
+	//获取所有地址
+	async getAddress(){
+		let address = await getData(1);
+		if(address){
+			this.updateAddress(address);
+			return ;
+		}
+
+		const response = await this.$axios.get('/gonggong/getAddress');
+		if (response.data){
+			let result = response.data;
+			if(result.code == 0){
+				console.log(result);
+				let data = {
+					"id":1,
+					"shengList": result.result.sheng,
+					"shiList": result.result.shi,
+					"quList": result.result.qu,
+					"zhenList": result.result.zhen,
+				}
+				this.updateAddress(data);
+				await addData(data);
+			}else{
+				this.warningFlag = true;
+				this.warningmsg = result.result;
+			}
+		}
+	}
+
+
   },
 };
 

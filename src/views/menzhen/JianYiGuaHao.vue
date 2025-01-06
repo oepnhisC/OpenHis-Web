@@ -26,10 +26,36 @@
                         :enable-time-picker="false" text-input select-text="确定" cancel-text="取消" class="ghcell" style="width:240px"></VueDatePicker>
                     </v-col>
                     <v-col><v-text-field label="年龄(岁)" v-model="age"  density="compact"  hide-details  class="ghcell" ></v-text-field></v-col>
-                    <v-col><v-text-field label="联系电话" v-model="lxdh"  density="compact"  hide-details  class="ghcell"></v-text-field></v-col>
+                    <v-col><v-text-field label="联系电话" v-model="phone"  density="compact"  hide-details  class="ghcell"></v-text-field></v-col>
                 </v-row>
                 <v-row>
-                    <v-col><v-text-field label="住址" v-model="jtzz"  density="compact"  hide-details style="width:500px"></v-text-field></v-col>
+                    <div>
+                        <div class="ghcell" style="width:100px">
+                            <v-text-field label="省" v-model="sheng"  density="compact"  hide-details class="ghcell" ></v-text-field>
+                            <div style="position: fixed;width:300px;">
+                                <v-data-table :headers="shengHeaders" :items="shengList" :search="sheng" fixed-header  density="compact"   hide-default-footer >
+                                    <template v-slot:item="{ item }">
+                                        <tr :class="{'highlighted':selectedSheng === item  }" @click="selectSheng(item)">
+                                            <td v-for="column in shengHeaders">{{ item[column.key] }}</td>
+                                        </tr>
+                                    </template>
+                                </v-data-table>
+                            </div>
+                        </div>
+                        <!-- <div class="ghcell" style="width:100px">
+                            <v-text-field label="市" v-model="address"  density="compact"  hide-details class="ghcell" style="width:100px"></v-text-field>
+                            <v-data-table :headers="addHeaders" :items="shi" fixed-header   ></v-data-table>
+                        </div>
+                        <div class="ghcell" style="width:100px">
+                            <v-text-field label="区" v-model="address"  density="compact"  hide-details class="ghcell" style="width:100px"></v-text-field>
+                            <v-data-table :headers="addHeaders" :items="qu" fixed-header   ></v-data-table>
+                        </div>
+                        <div class="ghcell" style="width:100px">
+                            <v-text-field label="住址" v-model="address"  density="compact"  hide-details class="ghcell" style="width:100px"></v-text-field>
+                            <v-data-table :headers="addHeaders" :items="zhen" fixed-header   ></v-data-table>
+                        </div> -->
+                        
+                    </div>
                 </v-row>
             </v-container>
         </v-card>
@@ -40,6 +66,7 @@
 
 import VueDatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css'
+import { mapState } from 'vuex'
 
 export default {
 
@@ -83,14 +110,34 @@ export default {
 
             birthDate: new Date(),
             age:'',
-            lxdh:'',
+            phone:'',
+            address:'',
+
+            sheng:'',
+            shengHeaders:[
+                { title:'省', key:'sheng'}
+            ],
+            selectedSheng:null,
+ 
+
+            addHeaders:[
+                { title:'省', key:'sheng'}
+            ]
+
         }
     },
+    computed:{
+        ...mapState(['shengList','shiList', 'quList', 'zhenList'])
+    },
     mounted() {
-
+        console.log(this.sheng, this.shi, this.qu, this.zhen)
     },
     methods: {
-        
+        selectSheng(item){
+            console.log(item)
+            this.selectedSheng = item;
+            this.sheng = item.sheng;
+        }
     },
     watch: {
         show(val) {
@@ -104,4 +151,5 @@ export default {
 <style scoped>
 .ghcell{width:300px;display: inline-block;vertical-align:middle;}
 input{border:1px solid #ccc;}
+.highlighted{background-color: #cceeff}
 </style>
