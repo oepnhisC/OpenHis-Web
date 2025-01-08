@@ -9,9 +9,23 @@
                     <v-row no-gutters><v-text-field :rules="rules" hide-details v-model="mdtrt_cert_no" :label="label" clearable></v-text-field></v-row>
                     <!-- <v-row no-gutters><v-text-field hide-details v-model="card_sn" label="卡识别码"></v-text-field></v-row> -->
                     <!-- <v-row no-gutters><v-text-field hide-details v-model="begntime" label="开始时间"></v-text-field></v-row> -->
-                    <v-row no-gutters><v-select hide-details v-model="psn_cert_type" :items="options2" label="人员证件类型(一般不用选)"></v-select></v-row>
-                    <v-row no-gutters><v-text-field hide-details v-model="insuplc_admdvs" label="参保地区划（一般外省才需要填）" clearable></v-text-field></v-row>
+                    <v-row no-gutters><v-select hide-details v-model="psn_cert_type" :items="options2" label="人员证件类型(一般不用选，港澳人员曾经选过)"></v-select></v-row>
                     <v-row no-gutters><v-text-field hide-details v-model="psn_name" label="参保人姓名（一般外省才需要填）" clearable></v-text-field></v-row>
+                    <v-row no-gutters>
+                        <div style="width:100%">
+                            <v-text-field hide-details v-model="insuplc_admdvs" label="参保地区划（一般外省才需要填）" clearable @click:clear="claerQuhua()"></v-text-field>
+                            <div style="position: fixed;width:300px;z-index:0;left:300px;top:340px;">
+                                <v-data-table v-show="showShi" :headers="shiHeaders" :items="shiList" :search="insuplc_admdvs" fixed-header   no-data-text="找不到数据" 
+                                    density="compact"   hide-default-footer style="white-space: nowrap;font-size:12px">
+                                <template v-slot:item="{ item }">
+                                    <tr :class="{'highlighted':selectedShi === item  }" @click="selectShi(item)">
+                                        <td v-for="column in shiHeaders">{{ item[column.key] }}</td>
+                                    </tr>
+                                </template>
+                            </v-data-table>
+                            </div>
+                        </div>
+                    </v-row>
                     <v-row><v-col align="center"><v-btn size="x-large" @click="personInfo()" :loading="loading">查询</v-btn></v-col></v-row>
                     
                 </v-col>
@@ -106,6 +120,8 @@
 
 <script>
 
+import { mapState } from 'vuex';
+
 export default {
     name: 'yibaofuzhu',
     data() {
@@ -169,9 +185,22 @@ export default {
             manbingList:[],
             dingdianList:[],
             loading:false,
+
+            shiHeaders:[
+                { title:'省', key:'sheng'},
+                { title:'市', key:'shi'},
+                { title:'区划', key:'quhua'},
+                { title:'拼音', key:'pinyin'},
+                { title:'五笔', key:'wubi'},
+            ],
+            selectedShi:null,
+            showShi:false,
+            shi:'',
         }
     },
-
+    computed:{
+        ...mapState(['shiList']),
+    },
     mounted() {
         this.$emit('setbreadcrumbs',this.items);
     },
@@ -179,7 +208,7 @@ export default {
     methods: {
         //获取人员信息
         async personInfo(){
-            
+            this.showShi = false;
             if(!this.mdtrt_cert_no){
                 this.errFlag = true;
                 this.errmsg = '请填写参保人证件号码';
@@ -192,6 +221,7 @@ export default {
             }
             this.errFlag = false;
             this.loading = true;
+            
             this.certno = this.mdtrt_cert_no;
             const response = await this.$axios.post('/yibaofuzhu/personInfo',{
                 mdtrt_cert_type: this.mdtrt_cert_type,
@@ -224,7 +254,7 @@ export default {
 
         //获取缴费信息
         async getPayInfo(psn_no){
-            const response = await this.$axios.post('/yibaofuzhu/jiaofeiInfo',{psn_no:psn_no});
+            const response = await this.$axios.post('/yibaofuzhu/jiaofeiInfo',{psn_no:psn_no,insuplc_admdvs:this.insuplc_admdvs});
             if (response.data){
                 if(response.data.code == 0){
                     let result = response.data;
@@ -238,7 +268,7 @@ export default {
         
         //获取慢特病信息
         async getManBingInfo(psn_no){
-            const response = await this.$axios.post('/yibaofuzhu/manbingInfo',{psn_no:psn_no});
+            const response = await this.$axios.post('/yibaofuzhu/manbingInfo',{psn_no:psn_no,insuplc_admdvs:this.insuplc_admdvs});
             if (response.data){
                 if(response.data.code == 0){
                     let result = response.data;
@@ -257,7 +287,7 @@ export default {
 
         //获取定点信息
         async getDingDianInfo(psn_no){
-            const response = await this.$axios.post('/yibaofuzhu/dingdianInfo',{psn_no:psn_no});
+            const response = await this.$axios.post('/yibaofuzhu/dingdianInfo',{psn_no:psn_no,insuplc_admdvs:this.insuplc_admdvs});
             if (response.data){
                 if(response.data.code == 0){
                     let result = response.data;
@@ -344,6 +374,19 @@ export default {
                 }
             }
         },
+
+        //选择省市区
+        selectShi(item){
+            this.selectedShi = item;
+            this.insuplc_admdvs = item.quhua;
+            this.showShi = false;
+        },
+        //清空区划
+        claerQuhua(){
+            this.insuplc_admdvs = '';
+            this.selectedShi = null;
+            this.showShi = false;
+        }
     },
     watch: {
         mdtrt_cert_type: function(val) {
@@ -357,6 +400,21 @@ export default {
                 this.label = '电子医保凭证号';
             }
         },
+
+        insuplc_admdvs(newVal,oldVal){
+            if(  (oldVal == ''  && (this.selectedShi && newVal == this.selectedShi.quhua))
+                || (newVal == '' && (this.selectedShi && oldVal != this.selectedShi.quhua)) ) {
+                this.showShi = false;
+                return;
+            }
+            if(oldVal == ''  || (this.selectedShi && newVal != this.selectedShi.quhua)){
+                this.showShi = true;
+                return;
+            }
+            if(newVal == '' ||  (this.selectedShi && newVal == this.selectedShi.quhua) ){
+                this.showShi = false;
+            }
+        }
     }
 }
 
@@ -365,5 +423,5 @@ export default {
 
 <style scoped>
 .greenBG{background-color: #90EE90;}
-
+.highlighted{background-color: #cceeff}
 </style>

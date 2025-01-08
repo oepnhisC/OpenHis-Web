@@ -30,10 +30,11 @@
                 </v-row>
                 <v-row>
                     <div>
-                        <div class="ghcell" style="width:100px">
-                            <v-text-field label="省" v-model="sheng"  density="compact"  hide-details class="ghcell" ></v-text-field>
+                        <div class="ghcell" style="width:200px">
+                            <v-text-field label="省" v-model="sheng"  density="compact"  hide-details class="ghcell" style="width:200px;"></v-text-field>
                             <div style="position: fixed;width:300px;">
-                                <v-data-table :headers="shengHeaders" :items="shengList" :search="sheng" fixed-header  density="compact"   hide-default-footer >
+                                <v-data-table v-show="showSheng" :headers="shengHeaders" :items="shengList" :search="sheng" fixed-header no-data-text="暂无数据"  
+                                density="compact"   hide-default-footer style="white-space: nowrap;font-size:12px">
                                     <template v-slot:item="{ item }">
                                         <tr :class="{'highlighted':selectedSheng === item  }" @click="selectSheng(item)">
                                             <td v-for="column in shengHeaders">{{ item[column.key] }}</td>
@@ -42,15 +43,33 @@
                                 </v-data-table>
                             </div>
                         </div>
-                        <!-- <div class="ghcell" style="width:100px">
-                            <v-text-field label="市" v-model="address"  density="compact"  hide-details class="ghcell" style="width:100px"></v-text-field>
-                            <v-data-table :headers="addHeaders" :items="shi" fixed-header   ></v-data-table>
+                        <div class="ghcell" style="width:200px">
+                            <v-text-field label="市" v-model="shi"  density="compact"  hide-details class="ghcell" style="width:200px;"></v-text-field>
+                            <div style="position: fixed;width:300px;">
+                                <v-data-table v-show="showShi" :headers="shiHeaders" :items="shiList" :search="shi" fixed-header  no-data-text="暂无数据" 
+                                density="compact"   hide-default-footer style="white-space: nowrap;font-size:12px">
+                                <template v-slot:item="{ item }">
+                                    <tr :class="{'highlighted':selectedShi === item  }" @click="selectShi(item)">
+                                        <td v-for="column in shiHeaders">{{ item[column.key] }}</td>
+                                    </tr>
+                                </template>
+                            </v-data-table>
+                            </div>
                         </div>
-                        <div class="ghcell" style="width:100px">
-                            <v-text-field label="区" v-model="address"  density="compact"  hide-details class="ghcell" style="width:100px"></v-text-field>
-                            <v-data-table :headers="addHeaders" :items="qu" fixed-header   ></v-data-table>
+                        <div class="ghcell" style="width:200px">
+                            <v-text-field label="区" v-model="xianqu"  density="compact"  hide-details class="ghcell" style="width:200px;"></v-text-field>
+                            <div style="position: fixed;width:300px;">
+                                <v-data-table v-show="showQu"  :headers="quHeaders" :items="quList" :search="xianqu" fixed-header  no-data-text="暂无数据" 
+                                density="compact"   hide-default-footer style="white-space: nowrap;font-size:12px">
+                                <template v-slot:item="{ item }">
+                                    <tr :class="{'highlighted':selectedQu === item  }" @click="selectQu(item)">
+                                        <td v-for="column in quHeaders">{{ item[column.key] }}</td>
+                                    </tr>
+                                </template>
+                            </v-data-table>
+                            </div>
                         </div>
-                        <div class="ghcell" style="width:100px">
+                        <!-- <div class="ghcell" style="width:200px">
                             <v-text-field label="住址" v-model="address"  density="compact"  hide-details class="ghcell" style="width:100px"></v-text-field>
                             <v-data-table :headers="addHeaders" :items="zhen" fixed-header   ></v-data-table>
                         </div> -->
@@ -115,35 +134,130 @@ export default {
 
             sheng:'',
             shengHeaders:[
-                { title:'省', key:'sheng'}
+                { title:'省', key:'sheng'},
+                { title:'区划', key:'quhua'},
+                { title:'拼音', key:'pinyin'},
+                { title:'五笔', key:'wubi'},
             ],
             selectedSheng:null,
- 
+            showSheng:false,
 
-            addHeaders:[
-                { title:'省', key:'sheng'}
-            ]
+            shi:'',
+            shiHeaders:[
+                { title:'省', key:'sheng'},
+                { title:'市', key:'shi'},
+                { title:'区划', key:'quhua'},
+                { title:'拼音', key:'pinyin'},
+                { title:'五笔', key:'wubi'},
+            ],
+            selectedShi:null,
+            showShi:false,
+            closeShi :false,
+
+            xianqu:'',
+            quHeaders:[
+                { title:'省', key:'sheng'},
+                { title:'市', key:'shi'},
+                { title:'区', key:'qu'},
+                { title:'区划', key:'quhua'},
+                { title:'拼音', key:'pinyin'},
+                { title:'五笔', key:'wubi'},
+            ],
+            selectedQu:null,
+            showQu:true,
+            closeQu :false,
+
+
 
         }
     },
     computed:{
-        ...mapState(['shengList','shiList', 'quList', 'zhenList'])
+        ...mapState(['shengList','shiList', 'quList', 'zhenList']),
+        searchSheng(){
+            return this.search;
+        },
     },
     mounted() {
-        console.log(this.sheng, this.shi, this.qu, this.zhen)
+        
     },
     methods: {
         selectSheng(item){
             console.log(item)
             this.selectedSheng = item;
             this.sheng = item.sheng;
-        }
+            this.showSheng = false;
+        },
+        selectShi(item){
+            console.log(item)
+            this.selectedShi = item;
+            this.shi = item.shi;
+            // this.sheng = item.sheng;
+            this.showShi = false;
+            // this.closeShi = true;
+        },
+        selectQu(item){
+            console.log(item)
+            this.selectedQu = item;
+            this.xianqu = item.qu;
+            this.showQu = false;
+        },
     },
     watch: {
         show(val) {
             // 父级组件按下
             this.flag = true;
-        }
+        },
+        sheng(newVal,oldVal) {
+            // if(this.closeShi){
+            //     this.closeShi = false;
+            //     this.showSheng = false;
+            //     return;
+            // }
+            
+            if( newVal == '' ||  (oldVal == ''  && (this.selectedSheng && newVal == this.selectedSheng.sheng))
+                || (newVal == '' && (this.selectedSheng && oldVal != this.selectedSheng.sheng)) ) {
+                this.showSheng = false;
+                return;
+            }
+            if(oldVal == ''  || (this.selectedSheng && newVal != this.selectedSheng.sheng)){
+                this.showSheng = true;
+                return;
+            }
+            if( (this.selectedSheng && newVal == this.selectedSheng.sheng) ){
+                this.showSheng = false;
+            }
+        },
+        shi(newVal,oldVal) {
+            if( newVal == '' ||  (oldVal == ''  && (this.selectedShi && newVal == this.selectedShi.shi))
+                || (newVal == '' && (this.selectedShi && oldVal != this.selectedShi.shi)) ) {
+                this.showShi = false;
+                return;
+            }
+            if(oldVal == ''  || (this.selectedShi && newVal != this.selectedShi.shi)){
+                this.showShi = true;
+                return;
+            }
+            if( (this.selectedShi && newVal == this.selectedShi.shi) ){
+                this.showShi = false;
+            }
+        },
+        xianqu(newVal,oldVal) {
+            
+            if( newVal == ''  || (oldVal == ''  && (this.selectedQu && newVal == this.selectedQu.qu))
+                || (newVal == '' && (this.selectedQu && oldVal != this.selectedQu.qu)) ) {
+                this.showQu = false;
+                return;
+            }
+            
+            if( (this.selectedQu && newVal != this.selectedQu.qu)){
+                this.showQu = true;
+                return;
+            }
+            console.log(newVal,oldVal)
+            if(  (this.selectedQu && newVal == this.selectedQu.qu) ){
+                this.showQu = false;
+            }
+        },
     }
 }
 </script>
