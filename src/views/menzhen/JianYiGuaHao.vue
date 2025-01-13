@@ -164,7 +164,7 @@ export default {
                 { title:'五笔', key:'wubi'},
             ],
             selectedQu:null,
-            showQu:true,
+            showQu:false,
             closeQu :false,
 
 
@@ -249,7 +249,7 @@ export default {
                 return;
             }
             
-            if( (this.selectedQu && newVal != this.selectedQu.qu)){
+            if(oldVal == ''  || (this.selectedQu && newVal != this.selectedQu.qu)){
                 this.showQu = true;
                 return;
             }
