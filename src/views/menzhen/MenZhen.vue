@@ -40,6 +40,13 @@
 					:items-per-page="100"  sticky :loading="loading" loading-text="正在加载中"
 					no-data-text="暂无数据"  density="compact" hide-default-footer
 					style="font-size:12px;white-space: nowrap;border:1px solid #e0e0e0;min-width: 300px;" :height="houzhenHeight">
+					<template v-slot:headers>
+						<tr>
+							<th v-for="column in houzhenHeaders" :key="column.key">
+								<div :style="{width:column.width}">{{column.title}}</div>
+							</th>
+						</tr>
+					</template>
 					<template v-slot:item="{ item }">
 						<tr :class="{'highlighted':selectedHouZhen === item  }" @click="selectHouZhen(item)">
 							<td v-for="column in houzhenHeaders">{{ item[column.key] }}</td>
@@ -49,7 +56,7 @@
 			</VueDragResize>
 
 			<VueDragResize :isActive="JZActive" :isDraggable="false" :parentLimitation="true" :sticks="['mr','tm','tr']" 
-				:z="JZZIndex" :minh="350" :minw="300"  :w="300" :h="350" :y="340"  
+				:z="JZZIndex" :minh="320" :minw="300"  :w="300" :h="320" :y="340"  
 				@activated="JZKuangActive" @resizing="JZKuangResize">
 				<div style="font-size:20px;height: 40px;">
 					<span style="font-weight:bold;vertical-align: super;">就诊列表</span>
@@ -58,7 +65,14 @@
 				<v-data-table :headers="jiuzhenHeaders" :items="jiuzhenList" 
 					:items-per-page="100"  sticky :loading="loading" loading-text="正在加载中"
 					no-data-text="暂无数据"  density="compact" hide-default-footer
-					style="font-size:12px;white-space: nowrap;border:1px solid #e0e0e0;min-width: 300px;min-height: 260px;" :height="jiuzhenHeight">
+					style="font-size:12px;white-space: nowrap;border:1px solid #e0e0e0;min-width: 300px;" :height="jiuzhenHeight">
+					<template v-slot:headers>
+						<tr>
+							<th v-for="column in jiuzhenHeaders" :key="column.key">
+								<div :style="{width:column.width}">{{column.title}}</div>
+							</th>
+						</tr>
+					</template>
 					<template v-slot:item="{ item }">
 						<tr :class="{'highlighted':selectedJiuZhen === item  }" @click="selectJiuZhen(item)">
 							<td v-for="column in jiuzhenHeaders">{{ item[column.key] }}</td>
@@ -68,8 +82,8 @@
 			</VueDragResize>
 
 			<VueDragResize :isActive="MainActive" :isDraggable="false" :parentLimitation="true" :sticks="['ml']" 
-				:z="MainZIndex" :minh="windowHeight-140" :minw="windowWidth-305"  :w="windowWidth-305" :h="windowHeight-140" :x="305" :y="0"
-				@activated="MainKuangActive" >
+				:z="MainZIndex" :minh="windowHeight-150" :minw="windowWidth-305"  :w="windowWidth-305" :h="windowHeight-150" :x="305" :y="0"
+				@activated="MainKuangActive" @resizing="MainKuangResize">
 				<div style="font-size:20px;height: 40px;">
 					<v-chip-group v-model="selectedTag" selected-class="text-primary">
 						<v-chip value="0">医嘱</v-chip>
@@ -77,13 +91,31 @@
 						<v-chip value="2">开发中</v-chip>
 					</v-chip-group>
 				</div>
-				<v-data-table v-show="selectedTag == '0'" :headers="yiZhuHeaders" :items="yiZhuLiist" 
-					:items-per-page="100"  sticky :loading="loading" loading-text="正在加载中"
-					no-data-text="暂无数据"  density="compact" hide-default-footer
-					style="font-size:12px;white-space: nowrap;border:1px solid #e0e0e0;min-height: 260px;width:100%" >
+				<v-data-table v-show="selectedTag == '0'" :headers="yiZhuHeaders"  :items="yiZhuLiist" :group-by="yiZhuGroupBy"
+					:items-per-page="100"   :loading="loading" loading-text="正在加载中"
+					no-data-text="暂无数据"  hide-default-footer  :show-expand="true"
+					style="font-size:12px;border:1px solid #e0e0e0;width:100%;" :height="MainHeight">
+					<template  #group-header="{ item, columns, toggleGroup, isGroupOpen }">
+						<tr>
+							<td colspan="100%">
+							<VBtn :ref="(el) => {if (!isGroupOpen(item)) toggleGroup(item);}"
+								 :icon="isGroupOpen(item) ? '$expand' : '$next'" size="small" variant="text" ></VBtn>
+							<span>{{ item.value }}</span>
+							</td>
+						</tr>
+					</template>
+					<template v-slot:headers>
+						<tr>
+							<th v-for="column in yiZhuHeaders" :key="column.key">
+								<div :style="{width:column.width}">{{column.title}}</div>
+							</th>
+						</tr>
+					</template>
 					<template v-slot:item="{ item }">
 						<tr :class="{'highlighted':selectedYiZhu === item  }" @click="selectYiZhu(item)">
-							<td v-for="column in yiZhuHeaders" style="white-space: normal;">{{ item[column.key] }}</td>
+							<td v-for="column in yiZhuHeaders" style="">
+								<div :style="{width:column.width}">{{ item[column.key] }}</div>
+							</td>
 						</tr>
 					</template>
 				</v-data-table>
@@ -119,21 +151,21 @@ export default {
 			],
 
 			houzhenHeaders: [
-				{title:'门诊号',key:'fmzh'},
-				{title:'姓名',key:'fname'},
-				{title:'性别',key:'fsex'},
-				{title:'年龄',key:'fage'},
-				{title:'就诊状态',key:'fjzzt'},
-				{title:'医生',key:'fys'},
-				{title:'登记时间',key:'fdjsj'},
-				{title:'就诊科室',key:'fjzks'},
-				{title:'挂号类别',key:'fghlb'},
-				{title:'预约时间',key:'fyysj'},
-				{title:'预约标志',key:'fyybz'},
-				{title:'就诊次数',key:'fjzcs'},
-				{title:'就诊ID',key:'fjzid'},
-				{title:'病人ID',key:'fbrid'},
-				{title:'执行状态',key:'fzxzt'},
+				{title:'门诊号',key:'fmzh',width:'80px'},
+				{title:'姓名',key:'fname',width:'80px'},
+				{title:'性别',key:'fsex',width:'80px'},
+				{title:'年龄',key:'fage',width:'80px'},
+				{title:'就诊状态',key:'fjzzt',width:'80px'},
+				{title:'医生',key:'fys',width:'80px'},
+				{title:'登记时间',key:'fdjsj',width:'80px'},
+				{title:'就诊科室',key:'fjzks',width:'80px'},
+				{title:'挂号类别',key:'fghlb',width:'80px'},
+				{title:'预约时间',key:'fyysj',width:'80px'},
+				{title:'预约标志',key:'fyybz',width:'80px'},
+				{title:'就诊次数',key:'fjzcs',width:'80px'},
+				{title:'就诊ID',key:'fjzid',width:'80px'},
+				{title:'病人ID',key:'fbrid',width:'80px'},
+				{title:'执行状态',key:'fzxzt',width:'80px'},
 			],
 			houzhenList: [],
 			loading: false,
@@ -157,27 +189,28 @@ export default {
 			selectedJiuZhen: null,
 
 			jiuzhenHeaders: [
-				{title:'门诊号',key:'fmzh'},
-				{title:'姓名',key:'fname'},
-				{title:'性别',key:'fsex'},
-				{title:'年龄',key:'fage'},
-				{title:'医生',key:'fys'},
-				{title:'就诊科室',key:'fjzks'},
-				{title:'就诊状态',key:'fjzzt'},
-				{title:'就诊次数',key:'fjzcs'},
-				{title:'就诊ID',key:'fjzid'},
-				{title:'病人ID',key:'fbrid'},
+				{title:'门诊号',key:'fmzh',width:'80px'},
+				{title:'姓名',key:'fname',width:'50px'},
+				{title:'性别',key:'fsex',width:'30px'},
+				{title:'年龄',key:'fage',width:'50px'},
+				{title:'医生',key:'fys',width:'50px'},
+				{title:'就诊科室',key:'fjzks',width:'50px'},
+				{title:'就诊状态',key:'fjzzt',width:'50px'},
+				{title:'就诊次数',key:'fjzcs',width:'50px'},
+				{title:'就诊ID',key:'fjzid',width:'50px'},
+				{title:'病人ID',key:'fbrid',width:'50px'},
 			],
 			windowWidth:window.innerWidth,
 			windowHeight:window.innerHeight,
 			houzhenHeight:290,
-			jiuzhenHeight:310,
+			jiuzhenHeight:300,
 			JZZIndex:1,
 			HZZIndex:1,
 			HZActive:false,
 			JZActive:false,
 			MainActive:false,
 			MainZIndex:1,
+			MainHeight:615,
 
 			showJianYiGuaHao:false,
 
@@ -186,30 +219,37 @@ export default {
 			yiZhuLiist:[],
 
 			yiZhuHeaders:[
-				{ title:'紧急',key:'fjjbz' },
-				{ title:'状态',key:'FStatus'},
-				{ title:'开始时间',key:'fkszxsj' },
-				{ title:'医嘱内容',key:'fyz2' },
-				{title:'执行科室',key:'fzxks'},
-				{title:'查看报告',key:'fckbg'},
-				{title:'皮试',key:'fps'},
-				{title:'用法',key:'fyf'},
-				{title:'总量',key:'fcount'},
-				{title:'单位',key:'fdw'},
-				{title:'医师嘱托',key:'fyszt'},
-				{title:'检查部位',key:'fjcbw'},
-				{title:'标本部位',key:'fbbbw'},
-				{title:'医嘱备注',key:'fzy'},
-				{title:'附加执行',key:'fgyks'},
-				{title:'开嘱医师',key:'fkzys'},
-				{title:'执行性质',key:'fzxxz'},
-
+				{ title:'紧急',key:'fjjbz',width:'46px' },
+				{ title:'状态',key:'FStatus',width:'70px'},
+				{ title:'开始时间',key:'fkszxsj',width:'80px' },
+				{ title:'医嘱内容',key:'fyz2',width:'160px' },
+				{title:'执行科室',key:'fzxks',width:'80px'},
+				{title:'总量',key:'fcount',width:'46px'},
+				{title:'单位',key:'fdw',width:'46px'},
+				{title:'查看报告',key:'fckbg',width:'80px'},
+				{title:'皮试',key:'fps',width:'46px'},
+				{title:'用法',key:'fyf',width:'80px'},
+				{title:'医师嘱托',key:'fyszt',width:'100px'},
+				{title:'检查部位',key:'fjcbw',width:'100px'},
+				{title:'标本部位',key:'fbbbw',width:'100px'},
+				{title:'医嘱备注',key:'fzy',width:'100px'},
+				{title:'附加执行',key:'fgyks',width:'100px'},
+				{title:'开嘱医师',key:'fkzys',width:'100px'},
+				{title:'执行性质',key:'fzxxz',width:'100px'},
+				{title:'用药目的',key:'fyymd',width:'100px'},
+				{title:'计价特性',key:'fjjtx',width:'100px'},
+				{title:'执行时间方案',key:'fzxsjfa',width:'100px'},
+				{title:'开嘱科室',key:'fkzks',width:'100px'},
+				{title:'开嘱时间',key:'fkzsj',width:'100px'},
+				{title:'并发症',key:'fbfz',width:'100px'},
 				
 			],
 
 			selectedYiZhu:null,
 
-
+			yiZhuGroupBy:[
+				{key:'fkszxsj',order:'asc'},
+			],
 
 		};
 	},
@@ -218,7 +258,6 @@ export default {
 		this.$emit('setbreadcrumbs',this.items);
 		this.getHouZhenList();
 		this.getJiuZhenList();
-		console.log(window.innerWidth)
 	},
 	
 	methods: {
@@ -280,7 +319,7 @@ export default {
 			this.MainZIndex = 1;
 		},
 		JZKuangResize(newRect){
-			this.jiuzhenHeight = newRect.height - 40
+			this.jiuzhenHeight = newRect.height - 50
 		},
 		HZKuangResize(newRect){
 			this.houzhenHeight = newRect.height - 40
@@ -292,6 +331,9 @@ export default {
 			this.JZActive = false;
 			this.HZActive = false;
 			this.MainActive = true;
+		},
+		MainKuangResize(newRect){
+			this.MainHeight = newRect.height - 80
 		},
 
 		// 获取医嘱列表
@@ -313,7 +355,7 @@ export default {
 			this.selectedYiZhu = item;
 			console.log(item);
 		},
-		
+
 	}
 };
 </script>
@@ -321,4 +363,8 @@ export default {
 
 <style scoped>
 .highlighted{background-color: #cceeff}
+.v-table > .v-table__wrapper > table > tbody > tr > td, .v-table > .v-table__wrapper > table > tbody > tr > th, .v-table > .v-table__wrapper > table > thead > tr > td, .v-table > .v-table__wrapper > table > thead > tr > th, .v-table > .v-table__wrapper > table > tfoot > tr > td, .v-table > .v-table__wrapper > table > tfoot > tr > th{
+	padding:0 3px;
+}
+
 </style>
