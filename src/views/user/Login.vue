@@ -33,13 +33,13 @@ export default {
 		this.$refs.username.focus();
 	},
 	methods: {
-		...mapActions(['updatePermissions']),
+		...mapActions(['updatePermissions','updateKeshiID']),
 		async login(){
 			this.loading = true;
 			const response = await this.$axios.post('/user/login',{username:this.username,password:this.password});
 			if (response.data){
-				console.log(response.data);
 				let result = response.data;
+				console.log(result);
 				if(result.code == 0){
 					let token=result.result;
 					this.$axios.defaults.headers.common['Authorization'] = 'Bearer '+token;
@@ -48,7 +48,8 @@ export default {
 						permissions.push(result.permission[i].fpath);
 					}
 					this.updatePermissions(permissions);
-					this.$emit('setUserInfo',{'username':result.fname,'ip':result.ip});
+					this.updateKeshiID(result.fksid);
+					this.$emit('setUserInfo',{'username':result.fname,'ip':result.ip,'keshi':result.fks});
 					this.$router.replace('/');
 				}else{
 					this.warningFlag = true;

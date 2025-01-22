@@ -14,7 +14,7 @@
 		<v-btn v-show="username == ''" variant="text" rounded="xl" @click="Login()">登录</v-btn>
 		<v-btn v-show="username!= ''" variant="text" rounded="xl" @click="logOut()">退出</v-btn>
 		<v-btn v-show="username!= ''" variant="text" rounded="xl"  color="primary">{{'ip:'+ ip }}</v-btn>
-		<v-btn v-show="username!= ''" variant="text" rounded="xl"  color="primary">{{ username }}</v-btn>
+		<v-btn v-show="username!= ''" variant="text" rounded="xl"  color="primary">{{ username+'('+keshi+')' }}</v-btn>
 		</v-app-bar>
 
 		<v-navigation-drawer v-model="drawer" temporary>
@@ -51,6 +51,7 @@ export default {
         { title: "首页", to:'/' ,replace:true,disabled:false},
       ],
       username:'',
+	  keshi:'',
       ip:'',
 	  warningFlag: false,
       warningmsg: '',
@@ -105,6 +106,7 @@ export default {
 	setUserInfo(userinfo) {
 		this.username = userinfo.username;
 		this.ip = userinfo.ip;
+		this.keshi = userinfo.keshi;
 	},
 
 	//获取所有地址

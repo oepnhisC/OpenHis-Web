@@ -11,18 +11,27 @@
 			<div style="width:20vw;display: inline-block;vertical-align: bottom;padding-bottom:3px;">
 				<VueDatePicker v-model="guahaoTime" format="yyyy-MM-dd"  locale="zh-cn" day-picker range
                         :enable-time-picker="false" text-input select-text="确定" cancel-text="取消" class="ghcell" 
-						style="width:250px;--dp-input-padding:3px;margin-bottom:5px"></VueDatePicker>
-				<v-text-field v-model="searchContent" label="姓名、门诊号、卡号、拼音五笔首写字母" density="compact" hide-details width="15vw" variant="underlined" style="display: inline-block;vertical-align: bottom;margin-left:5px;"></v-text-field>
+						style="width:250px;--dp-input-padding:3px;margin-bottom:5px" ></VueDatePicker>
+				<v-text-field v-model="searchContent" @keydown="handleKeydown"
+					label="姓名、门诊号、卡号、拼音五笔首写字母" density="compact" hide-details width="15vw"
+				 	variant="underlined" style="display: inline-block;vertical-align: bottom;margin-left:5px;"></v-text-field>
 				<v-btn @click="chaXunBingRen()" size="small" style="margin-left:10px;">搜索</v-btn>
-				<div style="position: fixed;width:700px;z-index:999;">
-					<v-data-table v-show="showGuaHaoList"  :headers="guahaoHeaders" :items="guahaoList"  fixed-header  no-data-text="暂无数据" 
-						density="compact"   style="white-space: nowrap;font-size:12px;z-index:999">
+				<div style="position: fixed;width:800px;z-index:999;">
+					<v-data-table-virtual v-show="showGuaHaoList"  :headers="guahaoHeaders" :items="guahaoList"  fixed-header  no-data-text="暂无数据" 
+						density="compact"   style="white-space: nowrap;font-size:12px;z-index:999" height="400">
+						<template v-slot:headers>
+							<tr>
+								<th v-for="column in guahaoHeaders" :key="column.key">
+									<div :style="{width:column.width}">{{column.title}}</div>
+								</th>
+							</tr>
+						</template>
 						<template v-slot:item="{ item }">
 							<tr :class="{'highlighted':selectedBingRen === item  }" @click="selectBingRen(item)">
 								<td v-for="column in guahaoHeaders">{{ item[column.key] }}</td>
 							</tr>
 						</template>
-					</v-data-table>
+					</v-data-table-virtual>
 				</div>
 				<div v-show="showGuaHaoList" @click="showGuaHaoList = false" style="position: absolute;top:0;left:0;width:100%;height:100%;z-index:99;background-color:rgba(0,0,0,0.2);"></div>
 			</div>
@@ -32,25 +41,38 @@
 					:items-per-page="1"  sticky :loading="loading" loading-text="正在加载中"
 					no-data-text="暂无数据"  density="compact" hide-default-footer
 					style="font-size:12px;white-space: nowrap;border:1px solid #e0e0e0;width: 80vw;height: 100%;" >
+					<template v-slot:headers>
+						<tr>
+							<th v-for="column in personInfoHeaders" :key="column.key">
+								<div :style="{width:column.width}">{{column.title}}</div>
+							</th>
+						</tr>
+					</template>
+					<template v-slot:item="{ item }">
+						<tr><td v-for="column in personInfoHeaders">{{ item[column.key] }}</td></tr>
+					</template>
 				</v-data-table>
 			</div>
 		</div>
 		
-		<!-- 候诊列表 -->
+		
 		<div style="position: relative;width: 100%;padding:0;height: 700px;">
+			<!-- 候诊列表 -->
 			<VueDragResize :isActive="HZActive" :isDraggable="false" :parentLimitation="true" :sticks="['bm','mr','br']" 
 				:z="HZZIndex" :minh="330" :minw="300"  :w="300" :h="330"
 				@activated="HZKuangActive" @resizing="HZKuangResize">
 				<div style="font-size:20px;height: 40px;">
 					<span style="font-weight:bold;vertical-align: super;">候诊列表</span>
-					<v-btn size="small" style="margin-left:10px;vertical-align: super;">刷新</v-btn>
+					<v-btn size="small" style="margin-left:10px;vertical-align: super;" @click="getHouZhenList()">刷新</v-btn>
 					<div style="display: inline-block;margin-left: 8px;" >
-						<v-select density="compact" variant="underlined" hide-details hide-no-data hide-spin-buttons v-model="keshi" :items="keshiList" label="科室" style="width:120px;margin-top:5px;"></v-select>
+						<v-select density="compact" variant="underlined" hide-details hide-no-data hide-spin-buttons 
+						v-model="keshi" :items="keshiList" label="科室" @update:modelValue="selectKeshi"
+						style="width:120px;margin-top:5px;"></v-select>
 					</div>
 				</div>
-				<v-data-table :headers="houzhenHeaders" :items="houzhenList" 
+				<v-data-table :headers="houzhenHeaders" :items="houzhenList" :filter-keys="['fjzks','fys']" :search="searchHouZhen"
 					:items-per-page="100"  sticky :loading="loading" loading-text="正在加载中"
-					no-data-text="暂无数据"  density="compact" hide-default-footer
+					no-data-text="暂无数据"  density="compact" hide-default-footer 
 					style="font-size:12px;white-space: nowrap;border:1px solid #e0e0e0;min-width: 300px;" :height="houzhenHeight">
 					<template v-slot:headers>
 						<tr>
@@ -73,9 +95,9 @@
 				@activated="JZKuangActive" @resizing="JZKuangResize">
 				<div style="font-size:20px;height: 40px;">
 					<span style="font-weight:bold;vertical-align: super;">就诊列表</span>
-					<v-btn size="small" style="margin-left:10px;vertical-align: super;">刷新</v-btn>
+					<v-btn size="small" style="margin-left:10px;vertical-align: super;" @click="getJiuZhenList()">刷新</v-btn>
 				</div>
-				<v-data-table :headers="jiuzhenHeaders" :items="jiuzhenList" 
+				<v-data-table :headers="jiuzhenHeaders" :items="jiuzhenList" :filter-keys="['fjzks','fys']" :search="searchJiuZhen"
 					:items-per-page="100"  sticky :loading="loading" loading-text="正在加载中"
 					no-data-text="暂无数据"  density="compact" hide-default-footer
 					style="font-size:12px;white-space: nowrap;border:1px solid #e0e0e0;min-width: 300px;" :height="jiuzhenHeight">
@@ -134,7 +156,7 @@
 
 
 		</div>
-		<v-snackbar v-model="warningFlag"  color="warning" >{{ warningmsg }}</v-snackbar>
+		<v-snackbar v-model="warningFlag"  color="warning" ><v-icon icon="mdi-alert"></v-icon> {{ warningmsg }}</v-snackbar>
 		<JianYiGuaHao :show="showJianYiGuaHao"></JianYiGuaHao>
 	</div>
 		
@@ -148,6 +170,7 @@ import JianYiGuaHao from './JianYiGuaHao.vue';
 import VueDatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css'
 import { format } from 'date-fns';
+import { mapState } from 'vuex';
 
 export default {
 	name: 'MenZhen',
@@ -156,6 +179,7 @@ export default {
 		JianYiGuaHao,
 		VueDatePicker,
 	},
+
 	data() {
 		return {
 			items: [
@@ -181,21 +205,30 @@ export default {
 				{title:'病人ID',key:'fbrid',width:'80px'},
 				{title:'执行状态',key:'fzxzt',width:'80px'},
 			],
+			searchHouZhen:'',
 			houzhenList: [],
 			loading: false,
 			selectedHouZhen: null,
-			keshiList: [
-				{ title: '内科', value: '内科' },
-				{ title: '外科', value: '外科' },
-			],
-			keshi: '内科',
+			keshiList: [ ],
+			keshi: -1,
 
 			personInfoHeaders:[
-				{title:'姓名',key:'name'},
-				{title:'性别',key:'sex'},
-				{title:'年龄',key:'age'},
-				{title:'身份证号',key:'idCard'},
-				{title:'联系电话',key:'tel'},
+				{title:'姓名',key:'fname',width:'40px'},
+				{title:'门诊号',key:'fmzh',width:'40px'},
+				{title:'性别',key:'fsex',width:'40px'},
+				{title:'年龄',key:'fage',width:'40px'},
+				{title:'病人类别',key:'fbrlb',width:'60px'},
+				{title:'身份证号',key:'fsfz',width:'40px'},
+				{title:'今日挂号',key:'fjtgh',width:'40px'},
+				{title:'联系电话',key:'fphone',width:'40px'},
+				{title:'住址',key:'faddress',width:'40px'},
+				{title:'会员卡号',key:'fhykh',width:'70px'},
+				{title:'会员余额',key:'fyyye',width:'70px'},
+				{title:'出生日期',key:'fbirthday',width:'40px'},
+				{title:'备注',key:'fbz',width:'40px'},
+				{title:'传染病',key:'fcrb',width:'40px'},
+				{title:'症状体征',key:'fzz',width:'60px'},
+				{title:'并发症',key:'fbfz',width:'40px'},
 			],
 			personInfoList: [],
 
@@ -203,7 +236,7 @@ export default {
 			selectedJiuZhen: null,
 
 			jiuzhenHeaders: [
-				{title:'门诊号',key:'fmzh',width:'80px'},
+				{title:'门诊号',key:'fmzh',width:'40px'},
 				{title:'姓名',key:'fname',width:'50px'},
 				{title:'性别',key:'fsex',width:'30px'},
 				{title:'年龄',key:'fage',width:'50px'},
@@ -214,6 +247,7 @@ export default {
 				{title:'就诊ID',key:'fjzid',width:'50px'},
 				{title:'病人ID',key:'fbrid',width:'50px'},
 			],
+			searchJiuZhen:'',
 			windowWidth:window.innerWidth,
 			windowHeight:window.innerHeight,
 			houzhenHeight:290,
@@ -286,17 +320,23 @@ export default {
 
 		};
 	},
+	computed: {
+		...mapState(['keshiID']),
+	},
 	mounted() {
+		console.log('科室ID',this.keshiID)
 		this.$emit('setTitle','门诊医生工作站');
 		this.$emit('setbreadcrumbs',this.items);
 		this.getHouZhenList();
 		this.getJiuZhenList();
+		this.getKeshi();
 
+		// 设置默认时间
 		let today = new Date();
 		let year = today.getFullYear();
 		let month = today.getMonth() + 1;
 		let day = today.getDate();
-		let lastWeek = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+		let lastWeek = new Date(today.getTime() - 31 * 24 * 60 * 60 * 1000);
 		this.guahaoTime = [lastWeek.getFullYear() + '-' + (lastWeek.getMonth() + 1) + '-' + lastWeek.getDate(), year + '-' + month + '-' + day];
 	},
 	
@@ -337,8 +377,13 @@ export default {
 		},
 
 		selectJiuZhen(item){
+			if(this.selectedJiuZhen === item){
+				return ;
+			}
 			this.selectedJiuZhen = item;
+			this.getBingRenXinXi(item.fjzid);
 			this.getYiZhuList(item.fjzid);
+
 
 		},
 		JZKuangActive(){
@@ -395,6 +440,9 @@ export default {
             this.loading = false;
 		},
 		selectYiZhu(item){
+			if(this.selectedYiZhu === item){
+				return;
+			}
 			this.selectedYiZhu = item;
 			console.log(item);
 		},
@@ -431,9 +479,73 @@ export default {
 			console.log(item);
 			this.selectedBingRen = item;
 			this.showGuaHaoList = false;
+			this.getBingRenXinXi(item.fghid);
 			this.getYiZhuList(item.fghid);
 			this.searchContent = "";
+			this.selectedHouZhen = null;
+			this.selectedJiuZhen = null;
+			this.selectedYiZhu = null;
+			
 		},
+		// 按下回车搜索
+		handleKeydown(event){
+			if(event.keyCode == 13){
+				this.chaXunBingRen();
+			}
+		},
+		// 获取病人详细信息
+		async getBingRenXinXi(fjzid){
+			
+			this.loading = true;
+			const response = await this.$axios.post('/menzhen/getBingRenXinXi',{jzid:fjzid});
+			if (response.data){
+				let result = response.data;
+				console.log(result);
+				if(result.code == 0){
+					this.personInfoList = result.result;
+				}else{
+					this.personInfoList = [];
+				}
+			}
+			this.loading = false;
+		},
+
+		// 获取员工所属科室
+		async getKeshi(item){
+			this.loading = true;
+			const response = await this.$axios.get('/menzhen/getKeShi');
+			if (response.data){
+				let result = response.data;
+				console.log(result);
+				if(result.code == 0){
+					let haveKeshi = false;
+					let templist = result.result;
+					for(let i=0;i<templist.length;i++){
+						this.keshiList.push({title:templist[i]['fks'],value:templist[i]['fksid']});
+						if(templist[i]['fksid'] == this.keshiID){
+							console.log(templist[i]['fksid']);
+							this.keshi = templist[i]['fksid'];
+							haveKeshi = true;
+						}
+					}
+					if(!haveKeshi){
+						this.keshi = templist[0]['fksid'];
+					}
+				}else{
+					this.keshiList= [];
+				}
+			}
+			this.loading = false;
+		},
+		// 选择科室
+		selectKeshi(value){
+			for(let i=0;i<this.keshiList.length;i++){
+				if(this.keshiList[i]['value'] == value){
+					this.searchJiuZhen = this.keshiList[i]['title'];
+					this.searchHouZhen = this.keshiList[i]['title'];
+				}
+			}
+		}
 
 	}
 };

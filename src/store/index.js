@@ -8,6 +8,7 @@ const store = new Vuex.Store({
         shiList:[],
         quList:[],
         zhenList:[],
+        keshiID:'',
     },
     mutations: {
         setPermissions(state, data) {
@@ -19,6 +20,10 @@ const store = new Vuex.Store({
             state.quList = data.quList;
             state.zhenList = data.zhenList;
         },
+        setKeshiID(state, data) {
+            state.keshiID = data;
+        },
+  
     },
     actions: {
         updatePermissions({ commit }, data) {
@@ -26,6 +31,9 @@ const store = new Vuex.Store({
         },
         updateAddress({ commit }, data) {
             commit('setAddress', data);
+        },
+        updateKeshiID({ commit }, data) {
+            commit('setKeshiID', data);
         },
     },
     getters: {
