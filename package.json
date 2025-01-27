@@ -15,6 +15,8 @@
     "dayjs": "^1.11.13",
     "idb": "^8.0.1",
     "lodash": "^4.17.21",
+    "pinyin": "^4.0.0-alpha.2",
+    "segmentit": "^2.0.3",
     "vue": "^3.4.29",
     "vue-drag-resize": "^1.5.4",
     "vue-router": "^4.3.3",

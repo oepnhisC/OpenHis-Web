@@ -4,12 +4,14 @@
 	<div style="width: 100vw;padding:0;height: 93vh;">
 		<div>
 			<v-btn @click="showJianYiGuaHao = !showJianYiGuaHao">挂号</v-btn>
+			<v-btn @click="kaiYiZhu()">开医嘱</v-btn>
 			<v-btn >更多功能正在开发中...</v-btn>
 		</div>
 		<div>
 			<!-- 搜索病人 -->
 			<div style="width:20vw;display: inline-block;vertical-align: bottom;padding-bottom:3px;">
-				<VueDatePicker v-model="guahaoTime" format="yyyy-MM-dd"  locale="zh-cn" day-picker range
+				<VueDatePicker v-model="guahaoTime" format="yyyy-MM-dd"  
+						locale="zh-cn" day-picker range
                         :enable-time-picker="false" text-input select-text="确定" cancel-text="取消" class="ghcell" 
 						style="width:250px;--dp-input-padding:3px;margin-bottom:5px" ></VueDatePicker>
 				<v-text-field v-model="searchContent" @keydown="handleKeydown"
@@ -98,7 +100,7 @@
 					<v-btn size="small" style="margin-left:10px;vertical-align: super;" @click="getJiuZhenList()">刷新</v-btn>
 				</div>
 				<v-data-table :headers="jiuzhenHeaders" :items="jiuzhenList" :filter-keys="['fjzks','fys']" :search="searchJiuZhen"
-					:items-per-page="100"  sticky :loading="loading" loading-text="正在加载中"
+					:items-per-page="100"   :loading="loading" loading-text="正在加载中" fixed-header
 					no-data-text="暂无数据"  density="compact" hide-default-footer
 					style="font-size:12px;white-space: nowrap;border:1px solid #e0e0e0;min-width: 300px;" :height="jiuzhenHeight">
 					<template v-slot:headers>
@@ -157,7 +159,9 @@
 
 		</div>
 		<v-snackbar v-model="warningFlag"  color="warning" ><v-icon icon="mdi-alert"></v-icon> {{ warningmsg }}</v-snackbar>
-		<JianYiGuaHao :show="showJianYiGuaHao"></JianYiGuaHao>
+		<v-snackbar v-model="successFlag"  color="success" ><v-icon icon="mdi-check"></v-icon> 操作成功！！！！</v-snackbar>
+		<JianYiGuaHao :show="showJianYiGuaHao" :ghksid="keshi" @guaHaoSuccess="guaHaoSuccess" ></JianYiGuaHao>
+		<MenZhenYiZhu :show="showKaiYiZhu" :bingRen="selectedJiuZhen" ></MenZhenYiZhu>
 	</div>
 		
 				
@@ -171,6 +175,7 @@ import VueDatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css'
 import { format } from 'date-fns';
 import { mapState } from 'vuex';
+import MenZhenYiZhu from './MenZhenYiZhu.vue';
 
 export default {
 	name: 'MenZhen',
@@ -178,6 +183,7 @@ export default {
 		VueDragResize,
 		JianYiGuaHao,
 		VueDatePicker,
+		MenZhenYiZhu
 	},
 
 	data() {
@@ -317,6 +323,9 @@ export default {
 			guahaoList:[],
 			selectedBingRen:null,
 			showGuaHaoList:false,
+			successFlag:false,
+
+			showKaiYiZhu:false,
 
 		};
 	},
@@ -324,7 +333,6 @@ export default {
 		...mapState(['keshiID']),
 	},
 	mounted() {
-		console.log('科室ID',this.keshiID)
 		this.$emit('setTitle','门诊医生工作站');
 		this.$emit('setbreadcrumbs',this.items);
 		this.getHouZhenList();
@@ -429,6 +437,7 @@ export default {
                 console.log(result);
                 if(result.code == 0){
 					let templist = result.result;
+					//设置分组ID
 					for(let i=0;i<templist.length;i++){
 						templist[i]['groupID'] = '就诊ID：'+templist[i]['fjzid'] + ' 开始时间：'+templist[i]['fkszxsj'];
 					}
@@ -545,7 +554,23 @@ export default {
 					this.searchHouZhen = this.keshiList[i]['title'];
 				}
 			}
-		}
+		},
+		//挂号成功
+		guaHaoSuccess(result){
+			this.successFlag = true;
+			this.getJiuZhenList();
+			this.getBingRenXinXi(result.jzid);
+			this.getYiZhuList(result.jzid);
+		},
+		// 开医嘱
+		kaiYiZhu(){
+			if(this.selectedJiuZhen === null){
+				this.warningFlag = true;
+				this.warningmsg = '请选择就诊病人';
+				return;
+			}
+			this.showKaiYiZhu = !this.showKaiYiZhu;
+		},
 
 	}
 };
