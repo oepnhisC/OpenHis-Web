@@ -239,7 +239,7 @@ export default {
 			personInfoList: [],
 
 			jiuzhenList: [],
-			selectedJiuZhen: null,
+			selectedJiuZhen: {},
 
 			jiuzhenHeaders: [
 				{title:'门诊号',key:'fmzh',width:'40px'},

@@ -5,8 +5,9 @@
                 <v-row justify="center" style="font-size:30px">挂号</v-row>
                 <v-row>
                     <v-col>
-                        <v-text-field label="姓名、门诊号、卡号、拼音五笔首写字母" v-model="search"  @keydown="handleKeydown" density="compact" hide-details  class="ghcell" style="width:240px"></v-text-field>
-                        <v-btn color="primary" @click="getOldData()">搜索</v-btn>
+                        <v-text-field label="姓名、门诊号、卡号、拼音首写字母" v-model="search"  @keydown="handleKeydown" :loading="loading"
+                        density="compact" hide-details  class="ghcell" style="width:240px"></v-text-field>
+                        <v-btn color="primary" @click="getOldData()" :loading="loading">搜索</v-btn>
                         <div style="position: fixed;width:800px;z-index:999;">
                             <v-data-table-virtual v-show="showOldData"  :headers="oldDataHeaders" :items="oldDataList"  fixed-header  no-data-text="暂无数据" 
                                 density="compact"   style="white-space: nowrap;font-size:12px;z-index:999" height="400">
@@ -267,9 +268,9 @@ export default {
                 const genderDigit = value.charAt(16);
                 // 判断性别
                 if (parseInt(genderDigit) % 2 === 0) {
-                    this.selectedsex = '女';
+                    this.selectedsex = '2';
                 } else {
-                    this.selectedsex = '男';
+                    this.selectedsex = '1';
                 }
             }
         },
@@ -457,6 +458,9 @@ export default {
         },
         // 按下回车搜索
 		handleKeydown(event){
+            if(this.loading){
+                return;
+            }
 			if(event.keyCode == 13){
 				this.getOldData();
 			}
@@ -469,6 +473,8 @@ export default {
                 this.errmsg = '请输入搜索内容';
                 return;
             }
+            this.errFlag = false;
+            this.loading = true;
             const response = await this.$axios.post('/menzhen/getOldData',{content: this.search,mzh:this.search.padStart(10,'0')});
             if (response.data){
                 let result = response.data;
@@ -482,6 +488,7 @@ export default {
                     this.errmsg = result.result;
                 }
             }
+            this.loading = false;
         },
         // 检查身份证
         checkSFZ(){
