@@ -161,7 +161,7 @@
 		<v-snackbar v-model="warningFlag"  color="warning" ><v-icon icon="mdi-alert"></v-icon> {{ warningmsg }}</v-snackbar>
 		<v-snackbar v-model="successFlag"  color="success" ><v-icon icon="mdi-check"></v-icon> 操作成功！！！！</v-snackbar>
 		<JianYiGuaHao :show="showJianYiGuaHao" :ghksid="keshi" @guaHaoSuccess="guaHaoSuccess" ></JianYiGuaHao>
-		<MenZhenYiZhu :show="showKaiYiZhu" :bingRen="selectedJiuZhen" ></MenZhenYiZhu>
+		<MenZhenYiZhu :show="showKaiYiZhu" :bingRen="selectedJiuZhen" :keshiId="keshi"></MenZhenYiZhu>
 	</div>
 		
 				

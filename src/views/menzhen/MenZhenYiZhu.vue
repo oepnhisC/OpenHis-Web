@@ -77,7 +77,7 @@
                 </div>
                 <div>
                     <v-textarea label="医嘱内容" v-model="yiZhuContent" rows="3" row-height="20" style="width:300px;display:inline-block;vertical-align:middle" no-resize hide-details></v-textarea>
-                    <v-btn size="large">搜索</v-btn>
+                    <v-btn @click="getYiZhuContent()" size="large">搜索</v-btn>
                 </div>
             </div>
         </div>
@@ -108,7 +108,11 @@ export default {
         bingRen:{
             type:Object,
             required:true
-        }
+        },
+        keshiId:{
+            type:Number,
+            required:true
+        },
     },
     data() {
         return {
@@ -234,6 +238,27 @@ export default {
                     break;
                 }
             }
+        },
+        // 获取医嘱内容
+        async getYiZhuContent(){
+            if(this.loading){
+                return;
+            }
+            if(this.yiZhuContent.trim() == ''){
+                return;
+            }
+            this.loading = true;
+            const response = await this.$axios.post('/menzhenyizhu/getYiZhuContent',{content:this.yiZhuContent,keshiId:this.keshiId});
+			if (response.data){
+				let result = response.data;
+				console.log(result);
+				if(result.code == 0){
+
+				}else{
+
+				}
+			}
+            this.loading = false;
         },
 
     },
