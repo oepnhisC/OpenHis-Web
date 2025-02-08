@@ -11,11 +11,11 @@
 			<!-- 搜索病人 -->
 			<div style="width:20vw;display: inline-block;vertical-align: bottom;padding-bottom:3px;">
 				<VueDatePicker v-model="guahaoTime" format="yyyy-MM-dd"  
-						locale="zh-cn" day-picker range
+						locale="zh-cn" day-picker range auto-apply
                         :enable-time-picker="false" text-input select-text="确定" cancel-text="取消" class="ghcell" 
 						style="width:250px;--dp-input-padding:3px;margin-bottom:5px" ></VueDatePicker>
 				<v-text-field v-model="searchContent" @keydown="handleKeydown"
-					label="姓名、门诊号、卡号、拼音五笔首写字母" density="compact" hide-details width="15vw"
+					label="姓名、门诊号、卡号、拼音首写字母" density="compact" hide-details width="15vw"
 				 	variant="underlined" style="display: inline-block;vertical-align: bottom;margin-left:5px;"></v-text-field>
 				<v-btn @click="chaXunBingRen()" size="small" style="margin-left:10px;">搜索</v-btn>
 				<div style="position: fixed;width:800px;z-index:999;">
