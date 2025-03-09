@@ -7,8 +7,10 @@
       <v-col><v-btn @click="this.$router.replace('/MenZhenJZGuanLi');$emit('setTitle','门诊结账管理')" size="x-large">门诊结账管理</v-btn></v-col>
       <v-col v-if="this.$hasPermission('gaolingjifeihuizong')"><v-btn  @click="this.$router.replace('/GaoLingZiFeiBiao');$emit('setTitle','高龄自费计算表')" size="x-large">高龄自费计算表</v-btn></v-col>
       <v-col><v-btn @click="this.$router.replace('/dad');$emit('setTitle','病人入院管理')" size="x-large" color="green" >病人入院管理</v-btn></v-col>
-      <v-col><v-btn @click="this.$router.replace('/menzhen');" size="x-large">门诊医生工作站</v-btn></v-col>
+      <v-col><v-btn @click="this.$router.replace('/vipcard');$emit('setTitle','会员管理')" size="x-large" color="green">会员管理</v-btn></v-col>
+      <v-col><v-btn @click="this.$router.replace('/menzhen');" size="x-large" prepend-icon="mdi-doctor" color="secondary">门诊医生工作站</v-btn></v-col>
       <v-col><v-btn @click="this.$router.replace('/HISManager');" size="x-large" >管理员功能</v-btn></v-col>
+
 
       <v-col><v-btn size="x-large">更多功能正在开发中...</v-btn></v-col>
 

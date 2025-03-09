@@ -33,7 +33,7 @@ export default {
 		this.$refs.username.focus();
 	},
 	methods: {
-		...mapActions(['updatePermissions','updateKeshiID']),
+		...mapActions(['updatePermissions','updateUserInfo']),
 		async login(){
 			this.loading = true;
 			const response = await this.$axios.post('/user/login',{username:this.username,password:this.password});
@@ -48,8 +48,13 @@ export default {
 						permissions.push(result.permission[i].fpath);
 					}
 					this.updatePermissions(permissions);
-					this.updateKeshiID(result.fksid);
-					this.$emit('setUserInfo',{'username':result.fname,'ip':result.ip,'keshi':result.fks});
+					let userInfo = {
+						'name':result.fname,
+						'ip':result.ip,
+						'keshi':result.fks,
+						'keshiID':result.fksid
+					};
+					this.updateUserInfo(userInfo);
 					this.$router.replace('/');
 				}else{
 					this.warningFlag = true;

@@ -3,9 +3,11 @@
 
 	<div style="width: 100vw;padding:0;height: 93vh;">
 		<div>
-			<v-btn @click="showJianYiGuaHao = !showJianYiGuaHao">挂号</v-btn>
-			<v-btn @click="kaiYiZhu()">开医嘱</v-btn>
-			<v-btn >更多功能正在开发中...</v-btn>
+			<v-btn @click="showJianYiGuaHao = !showJianYiGuaHao" prepend-icon="mdi-account-plus" 
+			color="success" variant="outlined">挂号</v-btn>
+			<v-btn @click="kaiYiZhu()" prepend-icon="mdi-pill-multiple" variant="outlined" 
+			style="margin-left:5px;" color="secondary">开医嘱</v-btn>
+			<v-btn variant="outlined" >更多功能正在开发中...</v-btn>
 		</div>
 		<div>
 			<!-- 搜索病人 -->
@@ -51,7 +53,8 @@
 						</tr>
 					</template>
 					<template v-slot:item="{ item }">
-						<tr><td v-for="column in personInfoHeaders">{{ item[column.key] }}</td></tr>
+						<tr><td v-for="column in personInfoHeaders" :class="{'zifeicolor':item[column.key]=='自费','tebingcolor':item[column.key]=='特种病门诊','dingdiancolor':item[column.key]=='定点'}"
+							>{{ item[column.key] }}</td></tr>
 					</template>
 				</v-data-table>
 			</div>
@@ -68,7 +71,7 @@
 					<v-btn size="small" style="margin-left:10px;vertical-align: super;" @click="getHouZhenList()">刷新</v-btn>
 					<div style="display: inline-block;margin-left: 8px;" >
 						<v-select density="compact" variant="underlined" hide-details hide-no-data hide-spin-buttons 
-						v-model="keshi" :items="keshiList" label="科室" @update:modelValue="selectKeshi"
+						v-model="keshiid" :items="keshiList" label="科室" @update:modelValue="selectKeshi"
 						style="width:120px;margin-top:5px;"></v-select>
 					</div>
 				</div>
@@ -111,8 +114,9 @@
 						</tr>
 					</template>
 					<template v-slot:item="{ item }">
-						<tr :class="{'highlighted':selectedJiuZhen === item  }" @click="selectJiuZhen(item)">
-							<td v-for="column in jiuzhenHeaders">{{ item[column.key] }}</td>
+						<tr :class="{'highlighted':selectedJiuZhen === item }" @click="selectJiuZhen(item)">
+							<td v-for="column in jiuzhenHeaders"
+							:class="jiuzhenColor(item,column.key)">{{ item[column.key] }}</td>
 						</tr>
 					</template>
 				</v-data-table>
@@ -160,8 +164,8 @@
 		</div>
 		<v-snackbar v-model="warningFlag"  color="warning" ><v-icon icon="mdi-alert"></v-icon> {{ warningmsg }}</v-snackbar>
 		<v-snackbar v-model="successFlag"  color="success" ><v-icon icon="mdi-check"></v-icon> 操作成功！！！！</v-snackbar>
-		<JianYiGuaHao :show="showJianYiGuaHao" :ghksid="keshi" @guaHaoSuccess="guaHaoSuccess" ></JianYiGuaHao>
-		<MenZhenYiZhu :show="showKaiYiZhu" :bingRen="selectedJiuZhen" :keshiId="keshi"></MenZhenYiZhu>
+		<JianYiGuaHao :show="showJianYiGuaHao" :ghksid="keshiid" @guaHaoSuccess="guaHaoSuccess" ></JianYiGuaHao>
+		<MenZhenYiZhu :show="showKaiYiZhu" :bingRen="selectedJiuZhen" :keshiId="keshiid" :keshi="keshi"></MenZhenYiZhu>
 	</div>
 		
 				
@@ -216,7 +220,9 @@ export default {
 			loading: false,
 			selectedHouZhen: null,
 			keshiList: [ ],
-			keshi: -1,
+			keshiid: -1,
+			keshi: '',
+
 
 			personInfoHeaders:[
 				{title:'姓名',key:'fname',width:'40px'},
@@ -383,6 +389,17 @@ export default {
             }
             this.loading = false;
 		},
+		//就诊列表颜色
+		jiuzhenColor(item,key){
+			if(key == 'fmzh'){
+				switch(item.fbrlb){
+					case '自费': return 'zifeicolor';
+					case '特种病门诊': return 'tebingcolor';
+					case '定点' : return 'dingdiancolor';
+				}
+			
+			}
+		},
 
 		selectJiuZhen(item){
 			if(this.selectedJiuZhen === item){
@@ -492,7 +509,7 @@ export default {
 			this.getYiZhuList(item.fghid);
 			this.searchContent = "";
 			this.selectedHouZhen = null;
-			this.selectedJiuZhen = null;
+			this.selectedJiuZhen = item;
 			this.selectedYiZhu = null;
 			
 		},
@@ -532,13 +549,18 @@ export default {
 					for(let i=0;i<templist.length;i++){
 						this.keshiList.push({title:templist[i]['fks'],value:templist[i]['fksid']});
 						if(templist[i]['fksid'] == this.keshiID){
-							console.log(templist[i]['fksid']);
-							this.keshi = templist[i]['fksid'];
+							this.keshiid = templist[i]['fksid'];
+							this.keshi = templist[i]['fks'];
+							this.searchHouZhen = templist[i]['fks'];
+							this.searchJiuZhen = templist[i]['fks'];
 							haveKeshi = true;
 						}
 					}
 					if(!haveKeshi){
-						this.keshi = templist[0]['fksid'];
+						this.keshiid = templist[0]['fksid'];
+						this.keshi = templist[0]['fks'];
+						this.searchHouZhen = templist[0]['fks'];
+						this.searchJiuZhen = templist[0]['fks'];
 					}
 				}else{
 					this.keshiList= [];
@@ -552,6 +574,8 @@ export default {
 				if(this.keshiList[i]['value'] == value){
 					this.searchJiuZhen = this.keshiList[i]['title'];
 					this.searchHouZhen = this.keshiList[i]['title'];
+					this.keshi = this.keshiList[i]['title'];
+					break;
 				}
 			}
 		},
@@ -579,6 +603,9 @@ export default {
 
 <style scoped>
 .highlighted{background-color: #cceeff}
+.zifeicolor{background-color:#c0c0c0}
+.tebingcolor{background-color:rgba(255, 0, 0, 0.5)}
+.dingdiancolor{background-color:rgba(255, 255, 0, 0.6)}
 .v-table > .v-table__wrapper > table > tbody > tr > td, .v-table > .v-table__wrapper > table > tbody > tr > th, .v-table > .v-table__wrapper > table > thead > tr > td, .v-table > .v-table__wrapper > table > thead > tr > th, .v-table > .v-table__wrapper > table > tfoot > tr > td, .v-table > .v-table__wrapper > table > tfoot > tr > th{
 	padding:0 3px;
 }

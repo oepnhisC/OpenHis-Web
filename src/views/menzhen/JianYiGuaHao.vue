@@ -28,7 +28,9 @@
                         <div v-show="showOldData" @click="showOldData = false" style="position: absolute;top:0;left:0;width:100%;height:100%;z-index:99;background-color:rgba(0,0,0,0.2);"></div>
                     </v-col>
                     <!-- <v-col><v-select  label="挂号类别" :items="ghType"  v-model="selectedGhType" density="compact" readonly  hide-details hide-no-data  class="ghcell" ></v-select></v-col> -->
-                    <v-col><v-select  label="病人类别" :items="brlb"  v-model="selectedbrlb" density="compact"   hide-details hide-no-data  class="ghcell"></v-select></v-col>
+                    <v-col><v-select  label="病人类别" :items="brlb"  v-model="selectedbrlb" density="compact"   hide-details hide-no-data  class="ghcell"
+                        :class="{'zifeicolor':selectedbrlb=='自费','tebingcolor':selectedbrlb=='特种病门诊','dingdiancolor':selectedbrlb=='定点'}"></v-select>
+                    </v-col>
                     <v-col><v-text-field label="门诊号" v-model="mzh"  density="compact" disabled variant="outlined"  hide-details  class="ghcell"></v-text-field></v-col>
                     <v-col><v-select  label="初复诊" :items="chuFuZhen"  v-model="selectedChuFuZhen" density="compact"   hide-details hide-no-data  class="ghcell"></v-select></v-col>
                 </v-row>
@@ -372,7 +374,7 @@ export default {
                 wubi: this.wubi,  //五笔
                 sex: this.selectedsex, //性别
                 xxnl: this.age + 'Y', //详细年龄
-                zy: this.zhiye, //职业
+                zy: this.zhiye, //职业 
                 hunyin: this.hunyinid, //婚姻状况
                 guoji:this.guoji, //国籍
                 minzu: this.minzu, //民族
@@ -550,4 +552,7 @@ input{border:1px solid #ccc;}
 .v-table > .v-table__wrapper > table > tbody > tr > td, .v-table > .v-table__wrapper > table > tbody > tr > th, .v-table > .v-table__wrapper > table > thead > tr > td, .v-table > .v-table__wrapper > table > thead > tr > th, .v-table > .v-table__wrapper > table > tfoot > tr > td, .v-table > .v-table__wrapper > table > tfoot > tr > th{
 	padding:0 3px;
 }
+.zifeicolor{background-color:#c0c0c0}
+.tebingcolor{background-color:rgba(255, 0, 0, 0.5)}
+.dingdiancolor{background-color:rgba(255, 255, 0, 0.6)}
 </style>

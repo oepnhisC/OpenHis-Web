@@ -11,10 +11,10 @@
 		<v-toolbar-title >{{mytitle}}</v-toolbar-title>
 		<v-spacer ></v-spacer>
 		<v-btn variant="text" rounded="xl" @click="goHome()">返回首页</v-btn>
-		<v-btn v-show="username == ''" variant="text" rounded="xl" @click="Login()">登录</v-btn>
-		<v-btn v-show="username!= ''" variant="text" rounded="xl" @click="logOut()">退出</v-btn>
-		<v-btn v-show="username!= ''" variant="text" rounded="xl"  color="primary">{{'ip:'+ ip }}</v-btn>
-		<v-btn v-show="username!= ''" variant="text" rounded="xl"  color="primary">{{ username+'('+keshi+')' }}</v-btn>
+		<v-btn v-show="userInfo.name == ''" variant="text" rounded="xl" @click="Login()">登录</v-btn>
+		<v-btn v-show="userInfo.name!= ''" variant="text" rounded="xl" @click="logOut()">退出</v-btn>
+		<v-btn v-show="userInfo.name!= ''" variant="text" rounded="xl"  color="primary">{{'ip:'+ userInfo.ip }}</v-btn>
+		<v-btn v-show="userInfo.name!= ''" variant="text" rounded="xl"  color="primary">{{ userInfo.name+'('+userInfo.keshi+')' }}</v-btn>
 		</v-app-bar>
 
 		<v-navigation-drawer v-model="drawer" temporary>
@@ -24,7 +24,7 @@
 		</v-navigation-drawer>
 
 		<v-main>
-			<RouterView @setTitle="setTitle($event)" @setbreadcrumbs="setbreadcrumbs($event)" @setUserInfo="setUserInfo($event)"/>
+			<RouterView @setTitle="setTitle($event)" @setbreadcrumbs="setbreadcrumbs($event)" />
 		</v-main>
 	</v-layout>
    	<v-snackbar v-model="warningFlag"  color="warning" >{{ warningmsg }}</v-snackbar>
@@ -40,7 +40,7 @@
 
 <script >
 import { addData, getData } from '@/services/indexedDBService';
-import { mapActions } from 'vuex';
+import { mapActions,mapState } from 'vuex';
 
 export default {
   data() {
@@ -50,7 +50,7 @@ export default {
       items: [
         { title: "首页", to:'/' ,replace:true,disabled:false},
       ],
-      username:'',
+      name:'',
 	  keshi:'',
       ip:'',
 	  warningFlag: false,
@@ -65,9 +65,11 @@ export default {
   beforeDestroy() {
     this.drawer = false;
   },
-
+  computed:{
+	...mapState(['userInfo'])
+  },
   methods: {
-	...mapActions(['updatePermissions','updateAddress']),
+	...mapActions(['updatePermissions','updateAddress','updateUserInfo']),
     goHome() {
 		this.$router.replace('/');
 		this.mytitle = '首页';
@@ -91,9 +93,10 @@ export default {
 			if(result.code == 0){
 				this.$router.replace('/login');
 				this.drawer = false;
-				this.username = '';
+				this.name = '';
 				this.ip = '';
 				this.updatePermissions([]);
+				this.updateUserInfo({ name:'', ip:'', keshi:'', keshiID:''});
 				this.successFlag = true;
 			}else{
 				console.log(result);
@@ -102,11 +105,6 @@ export default {
 			}
 		}
 		
-	},
-	setUserInfo(userinfo) {
-		this.username = userinfo.username;
-		this.ip = userinfo.ip;
-		this.keshi = userinfo.keshi;
 	},
 
 	//获取所有地址

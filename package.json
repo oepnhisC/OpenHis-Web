@@ -13,6 +13,7 @@
     "@vuepic/vue-datepicker": "^10.0.0",
     "axios": "^1.7.7",
     "dayjs": "^1.11.13",
+    "decimal.js": "^10.5.0",
     "idb": "^8.0.1",
     "lodash": "^4.17.21",
     "pinyin": "^4.0.0-alpha.2",
