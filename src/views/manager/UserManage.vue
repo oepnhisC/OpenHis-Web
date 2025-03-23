@@ -3,19 +3,21 @@
         <v-row>
             <v-col align='left' cols="3"><v-text-field v-model="search" append-icon="mdi-magnify" label="从加载数据中查找用户" single-line hide-details  clearable stlye="height: 20px;"></v-text-field></v-col>
             <v-col><v-btn  @click="getUserList" size="x-large">刷新</v-btn></v-col>
+            <v-col><v-btn  @click="showResetPasswordDialog = true" size="x-large">重置密码</v-btn></v-col>
             <v-col><v-btn  @click="dialog = true" size="x-large">添加用户</v-btn></v-col>
             <v-col><v-btn  @click="addRoleToUser()" size="x-large">为用户添加角色</v-btn></v-col>
         </v-row>
 
         <v-row>
             <v-col>
+                <!-- 用户列表 -->
                 <v-data-table :headers="headers" :items="userList"  :search="search"
                     :items-per-page="200"  sticky :loading="loading" loading-text="正在加载中"
                     no-data-text="暂无数据"   dense 
                     style="width: 100%;font-size:12px;height: 700px;" >
                     <template v-slot:item="{ item }">
-                    <tr :class="{'highlighted':selectedItem === item }" 
-                        @click="selectRow(item)" style="white-space: nowrap;">
+                    <tr :class="{'highlighted':selectedUser === item }" 
+                        @click="selectUser(item)" style="white-space: nowrap;">
                         <td>{{ item.fno }}</td>
                         <td>{{ item.fname }}</td>
                     </tr>
@@ -23,6 +25,7 @@
                 </v-data-table>
             </v-col>
             <v-col>
+                <!-- 用户角色列表 -->
                 <v-data-table :headers="userRoleHeaders" :items="userRoleList" 
                     :items-per-page="200"  sticky :loading="loading" loading-text="正在加载中"
                     no-data-text="暂无数据"    dense 
@@ -31,6 +34,7 @@
             </v-col>
 
             <v-col>
+                <!-- 角色列表 -->
                 <v-data-table :headers="roleHeaders" :items="roleList"  
 					:items-per-page="200"   :loading="loading" loading-text="正在加载中"
 					no-data-text="暂无数据"  sticky  dense style=" font-size:12px;height: 700px;" >
@@ -55,6 +59,18 @@
                 <template v-slot:actions>
                     <v-btn :loading="loading" size="x-large"  variant="tonal" text="确定" @click="addUser()" color="success" prepend-icon="mdi-check-circle"></v-btn>
                     <v-btn :loading="loading" size="x-large"  variant="tonal" text="取消" @click="cancelAdd()" color="red"   prepend-icon="mdi-cancel"></v-btn>    
+                </template>
+            </v-card>
+        </v-dialog>
+        <v-dialog v-model="showResetPasswordDialog" width="400">
+            <v-card max-width="400" title="重置密码">
+                <v-text-field label="编号" v-model="selectedUser.fno" required hide-details readonly></v-text-field>
+                <v-text-field label="密码" v-model="password" required hide-details></v-text-field>
+                <v-text-field label="确认密码" v-model="password2" required hide-details></v-text-field>
+                <v-alert density="compact" title="失败" type="error"  v-show="errFlag">{{ errmsg }}</v-alert>
+                <template v-slot:actions>
+                    <v-btn :loading="loading" size="x-large"  variant="tonal" text="确定" @click="resetPassword()" color="success" prepend-icon="mdi-check-circle"></v-btn>
+                    <v-btn :loading="loading" size="x-large"  variant="tonal" text="取消" @click="cancelReset()" color="red"   prepend-icon="mdi-cancel"></v-btn>    
                 </template>
             </v-card>
         </v-dialog>
@@ -86,7 +102,7 @@ export default {
                 { title: "用户管理" }
             ],
             loading: false,
-            selectedItem :null,
+            selectedUser :{},
             search: '',
             successFlag: false,
             errFlag: false,
@@ -104,6 +120,8 @@ export default {
             selectedRole:null,
             warningFlag: false,
             warningmsg: '',
+
+            showResetPasswordDialog:false,
         }
     },
     mounted() {
@@ -117,21 +135,21 @@ export default {
             this.loading = true;
             const response = await this.$axios.get('/userManger/getUserList');
             if (response.data){
-                if(response.data.code == 0){
-                    let result = response.data;
+                let result = response.data;
+                if(result.code == 0){
                     console.log(result);
                     this.userList = result.result;
                 }else{
                     this.userList = [];
-                    console.log(response.data);
+                    this.warningFlag = true;
+                    this.warningmsg = result.result;
                 }
             }
             this.loading = false;
         },
         // 选择单据
-        async selectRow(item) {
-            console.log(item);
-            this.selectedItem = item;
+        async selectUser(item) {
+            this.selectedUser = item;
             this.getUserRoleList();
         },
 
@@ -191,14 +209,13 @@ export default {
 		},
         // 选择角色
 		selectRole(item) {
-			console.log(item);
 			this.selectedRole = item;
 		},
 
         // 获取用户角色列表
         async getUserRoleList() {
             this.loading = true;
-            const response = await this.$axios.post('/userManger/getUserRoleList',{id:this.selectedItem.fuid});
+            const response = await this.$axios.post('/userManger/getUserRoleList',{id:this.selectedUser.fuid});
             if (response.data){
                 let result = response.data;
                 console.log(result);
@@ -214,7 +231,7 @@ export default {
 
         // 为用户添加角色
         async addRoleToUser() {
-            if (this.selectedItem == null){
+            if (this.selectedUser == null){
                 this.warningmsg = '请先选择用户';
                 this.warningFlag = true;
                 return;
@@ -225,7 +242,7 @@ export default {
                 return;
             }
             this.loading = true;
-            const response = await this.$axios.post('/userManger/addRoleToUser',{userid:this.selectedItem.fuid,roleid:this.selectedRole.roleid});
+            const response = await this.$axios.post('/userManger/addRoleToUser',{userid:this.selectedUser.fuid,roleid:this.selectedRole.roleid});
             if (response.data){
                 let result = response.data;
                 console.log(result);
@@ -238,6 +255,40 @@ export default {
                 }
             }
             this.loading = false;
+        },
+        // 重置密码
+        async resetPassword(){
+            if (this.selectedUser == null){
+                this.warningmsg = '请先选择用户';
+                this.warningFlag = true;
+                return;
+            }
+            if (this.password != this.password2){
+                this.errmsg = '两次密码输入不一致';
+                this.errFlag = true;
+                return;
+            }
+            this.loading = true;
+            const response = await this.$axios.post('/userManger/resetPassword',{'username':this.selectedUser.fno,'password':this.password});
+            if (response.data){
+                let result = response.data;
+                console.log(result);
+                if(result.code == 0){
+                    this.successFlag = true;
+                    this.cancelReset();
+                }else{
+                    this.errmsg = result.result;
+                    this.errFlag = true;
+                }
+            }
+            this.loading = false;
+        },
+        // 取消重置密码
+        cancelReset(){
+            this.showResetPasswordDialog = false;
+            this.selectedUser = {};
+            this.password = '';
+            this.password2 = '';
         },
 
 

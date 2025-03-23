@@ -10,9 +10,10 @@
 			</v-breadcrumbs>
 		<v-toolbar-title >{{mytitle}}</v-toolbar-title>
 		<v-spacer ></v-spacer>
-		<v-btn variant="text" rounded="xl" @click="goHome()">返回首页</v-btn>
-		<v-btn v-show="userInfo.name == ''" variant="text" rounded="xl" @click="Login()">登录</v-btn>
-		<v-btn v-show="userInfo.name!= ''" variant="text" rounded="xl" @click="logOut()">退出</v-btn>
+
+		<v-btn v-show="$route.path !='/'" variant="text" rounded="xl" @click="goHome()" prepend-icon="mdi-home">返回首页</v-btn>
+		<v-btn v-show="userInfo.name == ''" variant="text" rounded="xl" @click="Login()" prepend-icon="mdi-login">登录</v-btn>
+		<v-btn v-show="userInfo.name!= ''" variant="text" rounded="xl" @click="logOut()" prepend-icon="mdi-logout">退出</v-btn>
 		<v-btn v-show="userInfo.name!= ''" variant="text" rounded="xl"  color="primary">{{'ip:'+ userInfo.ip }}</v-btn>
 		<v-btn v-show="userInfo.name!= ''" variant="text" rounded="xl"  color="primary">{{ userInfo.name+'('+userInfo.keshi+')' }}</v-btn>
 		</v-app-bar>

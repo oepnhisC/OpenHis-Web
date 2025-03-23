@@ -11,13 +11,12 @@ import MenZhenTuiFei from '@/views/shoufei/MenZhenTuiFei.vue'
 import ZiFeiBingRenShangChuan from '@/views/yibao/ZiFeiBingRenShangChuan.vue'
 import UserManage from '@/views/manager/UserManage.vue'
 import Login from '@/views/user/Login.vue'
-import ruyuan from '@/views/zhuyuan/ruyuan.vue'
 import PermissionManager from '@/views/manager/PermissionManager.vue'
 import HISManager from '@/views/manager/HISManager.vue'
 import dad from '@/views/zhuyuan/dad.vue'
 import ruyuan02 from '@/views/zhuyuan/ruyuan02.vue'
 import ChangePassword from '@/views/user/ChangePassword.vue'
-import JianYiGuaHao from '@/views/menzhen/JianYiGuaHao.vue'
+import ShiQianFenXi from '@/views/yibao/ShiQianFenXi.vue'
 
 const router = createRouter({
   history: createWebHashHistory(import.meta.env.BASE_URL),
@@ -34,14 +33,12 @@ const router = createRouter({
     {path:'/ZiFeiBingRenShangChuan',name:'ZiFeiBingRenShangChuan',component:ZiFeiBingRenShangChuan},
     {path:'/Login',name:'Login',component:Login},
     {path:'/UserManage',name:'UserManage',component:UserManage},
-    {path:'/ruyuan',name:'ruyuan',component:ruyuan},
     {path:'/dad',name:'dad',component:dad},
     {path:'/ruyuan02',name:'ruyuan02',component:ruyuan02},
     {path:'/PermissionManager',name:'PermissionManager',component:PermissionManager},
     {path:'/HISManager',name:'HISManager',component:HISManager},
     {path:'/ChangePassword',name:'ChangePassword',component:ChangePassword},
-    {path:'/JianYiGuaHao',name:'JianYiGuaHao',component:JianYiGuaHao},
-
+    {path:'/ShiQianFenXi',name:'ShiQianFenXi',component:ShiQianFenXi},
   ]
 })
 

@@ -14,16 +14,18 @@
                     <v-row no-gutters>
                         <div style="width:100%">
                             <v-text-field hide-details v-model="insuplc_admdvs" label="参保地区划（一般外省才需要填）" clearable @click:clear="claerQuhua()"></v-text-field>
-                            <div style="position: fixed;width:300px;z-index:0;left:300px;top:340px;">
+                            <!-- 地区表 -->
+                            <div style="position: fixed;width:600px;z-index:999;">
                                 <v-data-table v-show="showShi" :headers="shiHeaders" :items="shiList" :search="insuplc_admdvs" fixed-header   no-data-text="找不到数据" 
                                     density="compact"   hide-default-footer style="white-space: nowrap;font-size:12px">
-                                <template v-slot:item="{ item }">
-                                    <tr :class="{'highlighted':selectedShi === item  }" @click="selectShi(item)">
-                                        <td v-for="column in shiHeaders">{{ item[column.key] }}</td>
-                                    </tr>
-                                </template>
-                            </v-data-table>
+                                    <template v-slot:item="{ item }">
+                                        <tr class="shihover" @click="selectShi(item)">
+                                            <td v-for="column in shiHeaders">{{ item[column.key] }}</td>
+                                        </tr>
+                                    </template>
+                                </v-data-table>
                             </div>
+                            <div v-show="showShi" @click="showShi=false" class="zhezhao"></div>
                         </div>
                     </v-row>
                     <v-row><v-col align="center"><v-btn size="x-large" @click="personInfo()" :loading="loading">查询</v-btn></v-col></v-row>
@@ -424,4 +426,6 @@ export default {
 <style scoped>
 .greenBG{background-color: #90EE90;}
 .highlighted{background-color: #cceeff}
+.zhezhao{position: absolute;top:0;left:0;width:100%;height:100%;z-index:99;background-color:rgba(0,0,0,0.2);}
+.shihover:hover{background-color: #cceeff}
 </style>

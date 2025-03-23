@@ -252,8 +252,8 @@
                 </div>
 
                 <div style="margin-top:20px;">
-                    <v-btn ref="saveTemp" @click="saveTemp()" prepend-icon="mdi-clock-plus" size="x-large">暂时保存</v-btn>
-                    <v-btn @click="sureYiZhu()" size="x-large" prepend-icon="mdi-content-save" color="primary">确认医嘱</v-btn>
+                    <v-btn ref="saveTemp" @click="saveTemp()" prepend-icon="mdi-clock-plus" size="large" color="yellow">暂时保存</v-btn>
+                    <v-btn @click="sureYiZhu()" size="large" prepend-icon="mdi-content-save" color="primary">确认医嘱</v-btn>
                 </div>
             </div>
 
@@ -308,7 +308,7 @@
     </div>
     <v-snackbar v-model="warningFlag"  color="warning" ><v-icon icon="mdi-alert"></v-icon> {{ warningmsg }}</v-snackbar>
     <v-snackbar v-model="successFlag"  color="success" ><v-icon icon="mdi-check"></v-icon> 操作成功！！！！</v-snackbar>
-    <ZhongYaoYiZhu :show="showZhongYao"></ZhongYaoYiZhu>
+    <ZhongYaoYiZhu :show="showZhongYao" :firstZY="firstZhongYao" :ksID="keshiId"></ZhongYaoYiZhu>
 </v-dialog>
 </template>
 
@@ -560,6 +560,8 @@ export default {
             ],
 
             showZhongYao:false,
+
+            firstZhongYao:null, //第1个中药
         }
     },
     mounted(){
@@ -766,7 +768,6 @@ export default {
             this.showYiZhuFlag = false;
             console.log(item);
             this.selectedYiZhu = item;
-            this.yiZhuContent = item.fxmbm + ' ' + item.fxmname + ' ' + item.fguige;
             this.zxksFlag = false;
             switch(item.flxbm){
                 case 'L':this.yizhudan.xingzhi  = '9'; this.yizhudan.leixing  = '10'; this.yizhudan.id = this.yzdid-6; break; 
@@ -776,9 +777,12 @@ export default {
                     this.getYaoPinGuiGe();this.guDingYaoFang(item);   break;
                 case '3':
                     this.yizhudan.xingzhi = '2';this.yizhudan.leixing = '1';this.yizhudan.id = this.yzdid-3; 
-                    this.guDingYaoFang(item);this.showZhongYao = !this.showZhongYao;return;
+                    this.guDingYaoFang(item);
+                    this.firstZhongYao = item;this.showZhongYao = !this.showZhongYao;
+                    return;
 
             }
+            this.yiZhuContent = item.fxmbm + ' ' + item.fxmname + ' ' + item.fguige;
             this.$refs['gytj'].focus();
             
         },
