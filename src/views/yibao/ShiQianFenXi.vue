@@ -9,15 +9,16 @@
         <div style="display: inline-block; margin-left:40px;">
             <!-- 时间 -->
             <div style="display:inline-block;vertical-align: text-bottom;margin-left:180px;">
+                <span style="display:inline-block;vertical-align: middle;font-size:22px;">{{ flag === '1'?'就诊时间：':'入院时间：' }}</span>
                 <VueDatePicker v-model="searchTime" format="yyyy-MM-dd"  
                             locale="zh-cn" day-picker range auto-apply
                             :enable-time-picker="false" text-input select-text="确定" cancel-text="取消" 
-                            style="width:250px;--dp-input-padding:10px;" ></VueDatePicker>
+                            style="width:250px;--dp-input-padding:10px;display:inline-block;" ></VueDatePicker>
             </div>
             <!-- 门诊搜索框 -->
             <div v-show="flag === '1'" style="display:inline-block;margin-left:30px;">
                 <v-text-field label="姓名、门诊号、卡号、拼音首写字母" v-model="searchContent"  @keydown.enter.prevent="chaXunBingRen()" :loading="loading"
-                            density="compact" hide-details append-icon="mdi-magnify"
+                            density="compact" hide-details append-icon="mdi-magnify" clearable
                               style="width:300px;" @click:append="chaXunBingRen()"></v-text-field>
                 <div style="position: fixed;width:800px;z-index:999;left:30%">
 					<v-data-table-virtual v-show="showGuaHaoList"  :headers="guahaoHeaders" :items="guahaoList"  fixed-header  no-data-text="暂无数据" 
@@ -41,7 +42,7 @@
             <!-- 住院搜索框 -->
             <div v-show="flag === '2'" style="display:inline-block;margin-left:30px;">
                 <v-text-field label="姓名、住院号、拼音首写字母" v-model="searchContent"  @keydown.enter.prevent="chaXunZhuYuanBingRen()" :loading="loading"
-                            density="compact" hide-details append-icon="mdi-magnify"
+                            density="compact" hide-details append-icon="mdi-magnify" clearable
                               style="width:300px;" @click:append="chaXunZhuYuanBingRen()"></v-text-field>
                 <div style="position: fixed;width:800px;z-index:999;left:30%">
 					<v-data-table-virtual v-show="showZhuYuanChaXunFlag"  :headers="zhuYuanHeaders" :items="zhuYuanChaXunList"  fixed-header  no-data-text="暂无数据" 
@@ -71,10 +72,11 @@
                     <span style="font-weight:bold;vertical-align: super;">门诊患者列表</span>
                     <v-btn size="small" style="margin-left:10px;vertical-align: super;" @click="getJiuZhenList()" prepend-icon="mdi-refresh" :loadding="loading">刷新</v-btn>
                 </div>
+                <div style="font-size:14px;"><span style="font-weight:bold;vertical-align: super;">(仅显示2日内挂号病人,超出范围需单独查询)</span></div>
                 <v-data-table :headers="jiuzhenHeaders" :items="jiuzhenList" :filter-keys="['fjzks','fys']" :search="searchJiuZhen"
                     :items-per-page="100"   :loading="loading" loading-text="正在加载中" fixed-header
                     no-data-text="暂无数据"  density="compact" hide-default-footer
-                    style="font-size:12px;border:1px solid #e0e0e0;" :height="windowSize.height - 170 + 'px'" >
+                    style="font-size:12px;border:1px solid #e0e0e0;" :height="windowSize.height - 200 + 'px'" >
                     <template v-slot:headers>
                         <tr>
                             <th v-for="column in jiuzhenHeaders" :key="column.key">
@@ -152,10 +154,11 @@
                     <span style="font-weight:bold;vertical-align: super;">住院患者列表</span>
                     <v-btn size="small" style="margin-left:10px;vertical-align: super;" @click="getZhuYuanList()" prepend-icon="mdi-refresh" :loadding="loading">刷新</v-btn>
                 </div>
+                <div style="font-size:14px;"><span style="font-weight:bold;vertical-align: super;">(仅显示30日内入院病人,超出范围需单独查询)</span></div>
                 <v-data-table :headers="zhuYuanHeaders" :items="zhuYuanList" 
                     :items-per-page="100"   :loading="loading" loading-text="正在加载中" fixed-header
                     no-data-text="暂无数据"  density="compact" hide-default-footer
-                    style="font-size:12px;border:1px solid #e0e0e0;" :height="windowSize.height - 170 + 'px'" >
+                    style="font-size:12px;border:1px solid #e0e0e0;" :height="windowSize.height - 200 + 'px'" >
                     <template v-slot:headers>
                         <tr>
                             <th v-for="column in zhuYuanHeaders" :key="column.key">
@@ -181,24 +184,33 @@
                         style="font-size:12px;white-space: nowrap;border:1px solid #e0e0e0;width: 100%;" >
                         <template v-slot:headers>
                             <tr>
+                                <th><div>操作</div></th>
+                                <th><div>触发场景</div></th>
                                 <th v-for="column in zhuYuanHeaders" :key="column.key">
                                     <div :style="{width:column.width}">{{column.title}}</div>
                                 </th>
                             </tr>
                         </template>
                         <template v-slot:item="{ item }">
-                            <tr><td v-for="column in zhuYuanHeaders" >{{ item[column.key] }}</td></tr>
+                            <tr>
+                                <td><v-btn @click="fenXiZhuYuan()" prepend-icon="mdi-poll" color="teal-lighten-3" size="small" style="margin-right:10px;" :loadding="loading">分析</v-btn></td>
+                                <td>
+                                    <v-select :items="zhuYuanTrigScenList" v-model="zhuYuanTrigScen" hide-details
+                                    style="display:inline-block;vertical-align: middle;"></v-select>
+                                </td>
+                                <td v-for="column in zhuYuanHeaders" >{{ item[column.key] }}</td>
+                            </tr>
                         </template>
                     </v-data-table>
                 </div>
                 <!-- 住院诊断信息 -->
                 <div style="margin-top:8px">
                     <v-data-table  :items="zhuYuanZhenDuanList" :headers="zhuYuanZhenDuanHeaders" 
-                        :items-per-page="100"   :loading="loading" loading-text="正在加载中" fixed-header
+                        :items-per-page="100"   :loading="loading" loading-text="正在加载中" 
                         no-data-text="暂无数据"  density="compact" hide-default-footer
                         style="font-size:12px;border:1px solid #e0e0e0;" >
                         <template v-slot:headers>
-                            <tr>
+                            <tr style="background-color:#f5f5f5;">
                                 <th v-for="column in zhuYuanZhenDuanHeaders" :key="column.key">
                                     <div :style="{width:column.width}">{{column.title}}</div>
                                 </th>
@@ -223,9 +235,10 @@
                     <v-data-table   :items="zhuYuanChuFangList" :headers="zhuYuanChuFangHeaders" 
                         :items-per-page="50"   :loading="loading"  fixed-header loading-text="正在加载中"
                         no-data-text="暂无数据"  
-                        style="font-size:12px;border:1px solid #e0e0e0;width:100%;height:500px" >
-                        <template v-slot:headers>
-                            <tr>
+                        style="font-size:12px;border:1px solid #e0e0e0;width:100%;height:500px" 
+                        :header-props="{    style: { backgroundColor: '#f5f5f5' }  }">
+                        <template v-slot:headers style="background-color:#f5f5f5;">
+                            <tr style="background-color:#f5f5f5;">
                                 <th v-for="column in zhuYuanChuFangHeaders" :key="column.key">
                                     <div :style="{width:column.width}">{{column.title}}</div>
                                 </th>
@@ -280,7 +293,7 @@
                             <td>
                                 <div>
                                     <v-textarea v-model="item.dspo_way_rea" :auto-grow="true" :rows="3" hide-details 
-                                    style="font-size:12px;width:100%;"
+                                    style="font-size:12px;width:100%;"   :disabled="item.dspo_way==='2'"
                                     :label="'选择继续执行时必填,还可以输入'+(500-item.dspo_way_rea.length)+'字'"></v-textarea>
                                 </div>
                             </td>
@@ -433,11 +446,11 @@ export default {
             //住院人员列表
             zhuYuanList:[],
             zhuYuanHeaders:[
-                {title:'住院号',key:'fzyh',width:'40px'},
+                {title:'住院号',key:'fzyh',width:'70px'},
                 {title:'住院科室',key:'fzyks',width:'50px'},
                 {title:'姓名',key:'fname',width:'50px'},
                 {title:'性别',key:'fsex',width:'30px'},
-                {title:'年龄',key:'fage',width:'50px'},
+                {title:'年龄',key:'fage',width:'35px'},
                 {title:'入院日期',key:'fryrq',width:'80px'},
                 {title:'出院日期',key:'fcyrq',width:'80px'},
                 {title:'状态',key:'fstatus',width:'50px'},
@@ -465,21 +478,29 @@ export default {
                 {title:'icd编码',key:'ficdbm',width:'100px'},
             ],
 
-            //主要处方信息
+            //住院处方信息
             zhuYuanChuFangList:[],
             zhuYuanChuFangHeaders:[
                 {title:'收费类型',key:'chrg_type',width:'80px'},
                 {title:'长临嘱',key:'long_drord_flag',width:'80px'},
                 {title:'组号',key:'grpno',width:'80px'},
                 {title:'医保目录代码',key:'hilist_code',width:'80px'},
-                {title:'医院目录名称',key:'hosplist_name',width:'50px'},
-                {title:'医院目录代码',key:'hosplist_code',width:'50px'},
+                {title:'医院目录名称',key:'hosplist_name',width:'80px'},
+                {title:'医院目录代码',key:'hosplist_code',width:'80px'},
                 {title:'数量',key:'cnt',width:'50px'},
                 {title:'总金额',key:'sumamt',width:'50px'},
                 {title:'医生',key:'drord_dr_name',width:'50px'},
                 {title:'出院带药',key:'drord_bhvr',width:'80px'},
                 {title:'处方ID',key:'rx_id',width:'50px'},
-            ]
+            ],
+            //触发场景 1门诊挂号;2门诊收费登记;3住院登记;4住院收费登记;5住院执行医嘱；6门诊结算;7门诊预结算;8住院结算;9住院预结算;
+            zhuYuanTrigScen:"4" , 
+            zhuYuanTrigScenList:[
+                { title:"住院收费登记",value:"4"},
+                { title:"住院执行医嘱",value:"5"},
+                { title:"住院预结算",value:"9"},
+                { title:"住院结算",value:"8"},
+            ],
 
         }
     },
@@ -498,7 +519,6 @@ export default {
 		this.searchTime = [lastWeek.getFullYear() + '-' + (lastWeek.getMonth() + 1) + '-' + lastWeek.getDate(), year + '-' + month + '-' + day];
 
         this.searchJiuZhen = this.userInfo.name;
-        
 
     },
     methods: {
@@ -539,7 +559,6 @@ export default {
 			this.showGuaHaoList = false;
 			this.getBingRenXinXi(item.fghid);
 			this.getYiZhuList(item.fghid,item.fryid);
-			this.searchContent = "";
 			this.selectedYiZhu = null;
 			
 		},
@@ -555,8 +574,6 @@ export default {
                     this.jiuzhenList = result.result;
                 } else{
 					this.jiuzhenList = [];
-                    this.warningFlag = true;
-                    this.warningmsg = result.result;
                 }
             }
             this.loading = false;
@@ -847,9 +864,15 @@ export default {
         },
         //选择住院人员
         selectZhuYuan(item){
-            console.log(item);
+            if(this.loading){
+                return;
+            }
+
+            if(this.selectedZhuYuan === item){
+                return ;
+            }
+
             this.selectedZhuYuan = item;
-            this.searchContent = "";
             this.showZhuYuanChaXunFlag = false;
             this.getZhuYuanBingRenXinXi(item.fzyid,item.fbrid);
             this.getZhuYuanZhenDuan(item.fzyid,item.fbrid);
@@ -865,6 +888,7 @@ export default {
                 console.log(result);
                 if(result.code == 0){
                     this.zhuYuanBingRenXinXi = result.result;
+                    this.medfee_sumamt = result.result.medfee_sumamt;
                 } else{
                     this.zhuYuanBingRenXinXi = [];
                     this.warningFlag = true;
@@ -923,7 +947,101 @@ export default {
                 case '13': return '挂号费';
                 case '14': return '其他费';
             }
-        }
+        },
+        //分析住院
+        async fenXiZhuYuan(){
+            if(this.loading){
+                return;
+            }
+
+            if(this.zhuYuanBingRenXinXi.length === 0){
+                this.warningFlag = true;
+                this.warningmsg = '请选择住院病人';
+                return;
+            }
+
+            let brxx = this.zhuYuanBingRenXinXi[0];
+            let dscg_main_dise_codg = '';
+            let dscg_main_dise_name = '';
+            for(let i=0;i<this.zhuYuanZhenDuanList.length;i++){
+                if(this.zhuYuanZhenDuanList[i].inout_dise_type == 2 && this.zhuYuanZhenDuanList[i].maindise_flag == 1){
+                    dscg_main_dise_codg = this.zhuYuanZhenDuanList[i].dise_codg;
+                    dscg_main_dise_name = this.zhuYuanZhenDuanList[i].dise_name;
+                    break;
+                }
+            }
+
+            if(dscg_main_dise_codg == '' || dscg_main_dise_name == ''){
+                this.warningFlag = true;
+                this.warningmsg = '需要填入出院主诊断才能分析';
+                return;
+            }
+
+
+            let fsi_order_dtos = this.zhuYuanChuFangList;
+            let fsi_diagnose_dtos = this.zhuYuanZhenDuanList;
+            let fsi_encounter_dtos = [{
+                fsi_diagnose_dtos:fsi_diagnose_dtos,
+                fsi_order_dtos:fsi_order_dtos,
+                fsi_operation_dtos:[],
+                mdtrt_id:brxx.fzyid,
+                adm_date:brxx.fryrq,
+                dscg_date:brxx.fcyrq?  brxx.fcyrq : "9999-12-31 00:00:00",
+                dscg_main_dise_codg:dscg_main_dise_codg,
+                dscg_main_dise_name:dscg_main_dise_name,
+                dr_codg:brxx.dr_codg,
+                adm_dept_codg:brxx.adm_dept_codg,
+                adm_dept_name:brxx.fzyks,
+                dscg_dept_codg:brxx.adm_dept_codg,
+                dscg_dept_name:brxx.fzyks,
+                med_mdtrt_type:'2',
+                med_type:'21'
+            }];
+
+            let patient_dtos = [{
+                fsi_encounter_dtos:fsi_encounter_dtos,
+                patn_id:brxx.fbrid,
+                patn_name:brxx.fname,
+                gend:brxx.fsex == '男'?'1':'2',
+                brdy:brxx.brdy,
+                curr_mdtrt_id:brxx.fzyid
+            }];
+
+            let shiQianJson = {
+                patient_dtos:patient_dtos,
+                trig_scen:this.zhuYuanTrigScen
+            }
+          
+            this.loading = true;
+            const response = await this.$axios.post('/shiqianfenxi/fenXiZhuYuan',shiQianJson);
+            if (response.data){
+                let result = response.data;
+                console.log(result);
+                if(result.code == 0){
+                    this.volaList = result.result.result;
+                    if(this.volaList.length == 0){
+                        this.successFlag = true;
+                        this.successmsg = '恭喜，没有违规';
+                    }else{
+                        for(let i=0;i<this.volaList.length;i++){
+                            this.volaList[i].dspo_way_rea = '';
+                            this.volaList[i].dspo_way = '2';
+                            switch(this.volaList[i].sev_deg){
+                                case '1': this.volaList[i].sev_deg = '明确违规';break;
+                                case '2': this.volaList[i].sev_deg = '高度可疑';break;
+                                case '3': this.volaList[i].sev_deg = '轻度可疑';break;
+                            }
+                        }
+                        this.showVolaXinXi = true;
+                    }
+                }else{
+                    this.warningFlag = true;
+                    this.warningmsg = result.result;
+                }
+            }
+            this.loading = false;
+        },
+
     },
 }
 </script>
@@ -936,6 +1054,7 @@ export default {
 .v-table > .v-table__wrapper > table > tbody > tr > td, .v-table > .v-table__wrapper > table > tbody > tr > th, .v-table > .v-table__wrapper > table > thead > tr > td, .v-table > .v-table__wrapper > table > thead > tr > th, .v-table > .v-table__wrapper > table > tfoot > tr > td, .v-table > .v-table__wrapper > table > tfoot > tr > th{
 	padding:0 3px;
 }
+.v-table.v-table--fixed-header > .v-table__wrapper > table > thead > tr > th{background-color: #f2f2f2 !important;}
 :deep(.v-field) {  --v-field-padding-start:6px;  --v-field-padding-end:6px;}
 :deep(.v-field.v-field--appended){--v-field-padding-end:0}
 :deep(.v-field--appended){padding-inline-end:0;}

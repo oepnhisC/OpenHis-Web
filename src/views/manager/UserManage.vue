@@ -1,20 +1,29 @@
 <template>
     <v-container style="width:100%;margin:0;max-width: 100%;">
         <v-row>
-            <v-col align='left' cols="3"><v-text-field v-model="search" append-icon="mdi-magnify" label="从加载数据中查找用户" single-line hide-details  clearable stlye="height: 20px;"></v-text-field></v-col>
-            <v-col><v-btn  @click="getUserList" size="x-large">刷新</v-btn></v-col>
-            <v-col><v-btn  @click="showResetPasswordDialog = true" size="x-large">重置密码</v-btn></v-col>
-            <v-col><v-btn  @click="dialog = true" size="x-large">添加用户</v-btn></v-col>
-            <v-col><v-btn  @click="addRoleToUser()" size="x-large">为用户添加角色</v-btn></v-col>
-        </v-row>
-
-        <v-row>
             <v-col>
+                <div>
+                    <div>
+                        <v-text-field v-model="search" density="compact" append-icon="mdi-magnify" label="从加载数据中查找用户" single-line hide-details  clearable stlye="height: 20px;"></v-text-field>
+                    </div>
+                    <div style="margin-top:10px;">
+                        <v-btn  @click="getUserList()"   prepend-icon="mdi-refresh" >刷新</v-btn>
+                        <v-btn  @click="showResetPasswordDialog = true"  prepend-icon="mdi-key-variant" style="margin-left:20px">重置密码</v-btn>
+                        <v-btn  @click="dialog = true" prepend-icon="mdi-plus" style="margin-left:20px">添加用户</v-btn>
+                    </div>
+                </div>
                 <!-- 用户列表 -->
                 <v-data-table :headers="headers" :items="userList"  :search="search"
-                    :items-per-page="200"  sticky :loading="loading" loading-text="正在加载中"
-                    no-data-text="暂无数据"   dense 
+                    :items-per-page="50"  sticky :loading="loading" loading-text="正在加载中"
+                    no-data-text="暂无数据"   density="compact"  
                     style="width: 100%;font-size:12px;height: 700px;" >
+                    <template v-slot:headers>
+                        <tr>
+                            <th v-for="column in headers" :key="column.key">
+                                <div :style="{width:column.width}">{{column.title}}</div>
+                            </th>
+                        </tr>
+                    </template>
                     <template v-slot:item="{ item }">
                     <tr :class="{'highlighted':selectedUser === item }" 
                         @click="selectUser(item)" style="white-space: nowrap;">
@@ -24,20 +33,46 @@
                     </template>
                 </v-data-table>
             </v-col>
+            <v-divider vertical></v-divider>
             <v-col>
+                <div>
+                    <v-btn  @click="deleteRoleFromUser()" prepend-icon="mdi-delete">从用户中删除角色</v-btn>
+                </div>
                 <!-- 用户角色列表 -->
                 <v-data-table :headers="userRoleHeaders" :items="userRoleList" 
                     :items-per-page="200"  sticky :loading="loading" loading-text="正在加载中"
-                    no-data-text="暂无数据"    dense 
+                    no-data-text="暂无数据"    density="compact"  
                     style="width: 100%;font-size:12px;height: 700px;" >
+                    <template v-slot:headers>
+                        <tr>
+                            <th v-for="column in userRoleHeaders" :key="column.key">
+                                <div :style="{width:column.width}">{{column.title}}</div>
+                            </th>
+                        </tr>
+                    </template>
+                    <template v-slot:item="{ item }">
+                        <tr  @click="selectUserRole(item)" :class="{'highlighted':selectedUserRole === item }" >
+                            <td v-for="column in userRoleHeaders">{{ item[column.key] }}</td>
+                        </tr>
+                    </template>
                 </v-data-table>
             </v-col>
-
+            <v-divider vertical></v-divider>
             <v-col>
+                <div>
+                    <v-btn  @click="addRoleToUser()" >为用户添加角色</v-btn>
+                </div>
                 <!-- 角色列表 -->
                 <v-data-table :headers="roleHeaders" :items="roleList"  
 					:items-per-page="200"   :loading="loading" loading-text="正在加载中"
-					no-data-text="暂无数据"  sticky  dense style=" font-size:12px;height: 700px;" >
+					no-data-text="暂无数据"  sticky  density="compact"  style=" font-size:12px;height: 700px;" >
+                    <template v-slot:headers>
+                        <tr>
+                            <th v-for="column in roleHeaders" :key="column.key">
+                                <div :style="{width:column.width}">{{column.title}}</div>
+                            </th>
+                        </tr>
+                    </template>
 					<template v-slot:item="{ item }">
 					<tr :class="{'highlighted':selectedRole === item }" 
 						@click="selectRole(item)" style="white-space: nowrap;">
@@ -112,6 +147,7 @@ export default {
                 {title:'用户拥有的角色',key:'fname'}
             ],
             userRoleList:[],
+            selectedUserRole:null,
 
             roleHeaders:[
                 {title:'所有角色名',key:'rolename'},
@@ -131,6 +167,7 @@ export default {
         this.getRoleList();
     },
     methods: {
+        //获取用户列表
         async getUserList() {
             this.loading = true;
             const response = await this.$axios.get('/userManger/getUserList');
@@ -147,7 +184,7 @@ export default {
             }
             this.loading = false;
         },
-        // 选择单据
+        // 选择用户
         async selectUser(item) {
             this.selectedUser = item;
             this.getUserRoleList();
@@ -229,6 +266,39 @@ export default {
             this.loading = false;
         },
 
+        //选择用户角色
+        selectUserRole(item) {
+            console.log(item);
+            this.selectedUserRole = item;
+        },
+        // 从用户中删除角色
+        async deleteRoleFromUser(){
+            if (this.selectedUser == null){
+                this.warningmsg = '请先选择用户';
+                this.warningFlag = true;
+                return;
+            }
+            if(this.selectedUserRole == null){
+                this.warningmsg = '请先选择用户角色';
+                this.warningFlag = true;
+                return;
+            }
+            this.loading = true;
+            const response = await this.$axios.post('/userManger/delRoleFromUser',{userid:this.selectedUser.fuid,roleid:this.selectedUserRole.frid});
+            if (response.data){
+                let result = response.data;
+                console.log(result);
+                if(result.code == 0){
+                    this.successFlag = true;
+                    this.getUserRoleList();
+                } else{
+                    this.warningmsg = result.result;
+                    this.warningFlag = true;
+                }
+            }
+            this.loading = false;
+        },
+
         // 为用户添加角色
         async addRoleToUser() {
             if (this.selectedUser == null){
@@ -301,4 +371,14 @@ export default {
 
 <style scoped>
 .highlighted{background-color: #cceeff}
+.v-table > .v-table__wrapper > table > tbody > tr > td, .v-table > .v-table__wrapper > table > tbody > tr > th, .v-table > .v-table__wrapper > table > thead > tr > td, .v-table > .v-table__wrapper > table > thead > tr > th, .v-table > .v-table__wrapper > table > tfoot > tr > td, .v-table > .v-table__wrapper > table > tfoot > tr > th{
+	padding:0 3px;
+}
+.v-table.v-table--fixed-header > .v-table__wrapper > table > thead > tr > th{background-color: #f2f2f2 !important;}
+:deep(.v-field) {  --v-field-padding-start:6px;  --v-field-padding-end:6px;}
+:deep(.v-field.v-field--appended){--v-field-padding-end:0}
+:deep(.v-field--appended){padding-inline-end:0;}
+:deep(input){font-size:14px;}
+:deep(.v-field__input){font-size:14px;}
+.highlight_hover:hover{background-color: #cceeff}
 </style>

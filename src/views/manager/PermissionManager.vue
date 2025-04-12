@@ -1,14 +1,22 @@
 <template>
 	<v-container style="width:100%;margin:0;max-width: 100%;">
 		<v-row>
-            <v-col><v-btn  @click="refresh()" :loading="loading"  size="x-large">刷新</v-btn></v-col>
-            <v-col><v-btn  @click="goToAddPermission()" :loading="loading"  size="x-large">选中的接口加入权限库</v-btn></v-col>
-        </v-row>
-		<v-row>
 			<v-col>
-				<v-data-table :headers="allAPIheaders" :items="allAPIList"  
-					:items-per-page="200"   :loading="loading" loading-text="正在加载中"
-					no-data-text="暂无数据"  sticky  dense style=" font-size:12px;height: 350px;" >
+				<div>
+					<v-btn  @click="refresh()" :loading="loading"  prepend-icon="mdi-refresh">刷新</v-btn>
+					<v-text-field v-model="searchAPI" hide-details  label="搜索API"
+					clearable style="height: 20px;width:200px;display: inline-block;vertical-align: top;margin-left:10px;"  density="compact"></v-text-field>
+				</div>
+				<v-data-table :headers="allAPIheaders" :items="allAPIList"  :search="searchAPI"
+					:items-per-page="200"   :loading="loading" loading-text="正在加载中" fixed-header
+					no-data-text="暂无数据"  sticky   density="compact"   style=" font-size:12px;height: 350px;margin-top:10px;" >
+					<template v-slot:headers>
+                        <tr>
+                            <th v-for="column in allAPIheaders" :key="column.key">
+                                <div :style="{width:column.width}">{{column.title}}</div>
+                            </th>
+                        </tr>
+                    </template>
 					<template v-slot:item="{ item }">
 					<tr :class="{'highlighted':selectedItem === item }" 
 						@click="selectRow(item)" style="white-space: nowrap;">
@@ -19,9 +27,21 @@
 				</v-data-table>
 			</v-col>
 			<v-col>
-				<v-data-table :headers="permissionHeaders" :items="permissionList"  
-					:items-per-page="200"   :loading="loading" loading-text="正在加载中"
-					no-data-text="暂无数据"  sticky  dense style=" font-size:12px;height: 350px;" >
+				<div>
+					<v-btn  @click="goToAddPermission()" :loading="loading"  prepend-icon="mdi-plus">选中的接口加入权限库</v-btn>
+					<v-text-field v-model="searchPerssion" hide-details  label="搜索权限"
+					clearable style="height: 20px;width:200px;display: inline-block;vertical-align: top;margin-left:10px;"  density="compact"></v-text-field>
+				</div>
+				<v-data-table :headers="permissionHeaders" :items="permissionList"  :search="searchPerssion"
+					:items-per-page="200"   :loading="loading" loading-text="正在加载中" fixed-header
+					no-data-text="暂无数据"  sticky   density="compact"   style=" font-size:12px;height: 350px;margin-top:10px;" >
+					<template v-slot:headers>
+                        <tr>
+                            <th v-for="column in permissionHeaders" :key="column.key">
+                                <div :style="{width:column.width}">{{column.title}}</div>
+                            </th>
+                        </tr>
+                    </template>
 					<template v-slot:item="{ item }">
 					<tr :class="{'highlighted':selectedPermission === item }" 
 						@click="selectPermission(item)" style="white-space: nowrap;">
@@ -35,9 +55,21 @@
 
 		<v-row>
 			<v-col>
-				<v-data-table :headers="roleHeaders" :items="roleList"  
+				<div>
+					<v-btn :loading="loading"   @click="goToAddRole()" prepend-icon="mdi-plus">添加角色</v-btn>
+					<v-text-field v-model="searchRole" hide-details  label="搜索角色"
+					clearable style="height: 20px;width:200px;display: inline-block;vertical-align: top;margin-left:10px;"  density="compact"></v-text-field>
+				</div>
+				<v-data-table :headers="roleHeaders" :items="roleList"  fixed-header :search="searchRole"
 					:items-per-page="200"   :loading="loading" loading-text="正在加载中"
-					no-data-text="暂无数据"  sticky  dense style=" font-size:12px;height: 350px;" >
+					no-data-text="暂无数据"  sticky   density="compact"   style=" font-size:12px;height: 350px;margin-top:10px;" >
+					<template v-slot:headers>
+                        <tr>
+                            <th v-for="column in roleHeaders" :key="column.key">
+                                <div :style="{width:column.width}">{{column.title}}</div>
+                            </th>
+                        </tr>
+                    </template>
 					<template v-slot:item="{ item }">
 					<tr :class="{'highlighted':selectedRole === item }" 
 						@click="selectRole(item)" style="white-space: nowrap;">
@@ -47,23 +79,27 @@
 				</v-data-table>
 			</v-col>
 			<v-col>
-				<v-row>
-					<v-btn :loading="loading"  size="large" @click="goToAddRole()">添加角色</v-btn>
-					<v-btn :loading="loading"  size="large" @click="addPermissionToRole()" style="margin-left:10px">为角色添加权限</v-btn>
-				</v-row>
-				<v-row>
-					<v-data-table :headers="rolePerHeaders" :items="rolePerList"  
-						:items-per-page="200"   :loading="loading" loading-text="正在加载中"
-						no-data-text="暂无数据"  sticky  dense style=" font-size:12px;height: 280px;margin-top:20px" >
-						<template v-slot:item="{ item }">
-						<tr :class="{'highlighted':selectedRolePer === item }" 
-							@click="selectRolePer(item)" style="white-space: nowrap;">
-							<td>{{ item.pername }}</td>
-							<td>{{ item.perpath }}</td>
+				<div>
+					<v-btn :loading="loading"   @click="addPermissionToRole()"  prepend-icon="mdi-plus">为角色添加权限</v-btn>
+				</div>
+				<v-data-table :headers="rolePerHeaders" :items="rolePerList"  fixed-header
+					:items-per-page="200"   :loading="loading" loading-text="正在加载中"
+					no-data-text="暂无数据"  sticky   density="compact"   style=" font-size:12px;height: 280px;margin-top:10px" >
+					<template v-slot:headers>
+						<tr>
+							<th v-for="column in rolePerHeaders" :key="column.key">
+								<div :style="{width:column.width}">{{column.title}}</div>
+							</th>
 						</tr>
-						</template>
-					</v-data-table>
-				</v-row>
+					</template>
+					<template v-slot:item="{ item }">
+					<tr :class="{'highlighted':selectedRolePer === item }" 
+						@click="selectRolePer(item)" style="white-space: nowrap;">
+						<td>{{ item.pername }}</td>
+						<td>{{ item.perpath }}</td>
+					</tr>
+					</template>
+				</v-data-table>
 			</v-col>
 		</v-row>
 
@@ -115,7 +151,7 @@ export default {
 			loading: false,
 			selectedItem: null,
 			allAPIheaders: [
-				{ title: 'API路径' },
+				{ title: 'API路径',key:'url' },
 				{ title: '状态' },
 			],
 			allAPIList: [],
@@ -142,6 +178,10 @@ export default {
 			rolePerList: [],
 
 			selectedRolePer: null,
+
+			searchAPI:"",
+			searchPerssion:"",
+			searchRole:"",
 		}
 	},
 	mounted() {
@@ -275,7 +315,6 @@ export default {
                     this.roleList = result.result;
                 } else{
                     this.roleList = [];
-                    console.log(result);
                 }
             }
             this.loading = false;
@@ -334,7 +373,6 @@ export default {
 				console.log(result); 
                 if(result.code == 0){
                     this.successFlag = true;
-					this.selectedPermission = null;
 					this.getRolePermissionList();
                 } else{
 					this.warningFlag = true;
@@ -389,4 +427,13 @@ export default {
 
 <style scoped>
 .highlighted{background-color: #cceeff}
+.v-table > .v-table__wrapper > table > tbody > tr > td, .v-table > .v-table__wrapper > table > tbody > tr > th, .v-table > .v-table__wrapper > table > thead > tr > td, .v-table > .v-table__wrapper > table > thead > tr > th, .v-table > .v-table__wrapper > table > tfoot > tr > td, .v-table > .v-table__wrapper > table > tfoot > tr > th{
+	padding:0 3px;
+}
+.v-table.v-table--fixed-header > .v-table__wrapper > table > thead > tr > th{background-color: #f2f2f2 !important;}
+:deep(.v-field) {  --v-field-padding-start:6px;  --v-field-padding-end:6px;}
+:deep(.v-field.v-field--appended){--v-field-padding-end:0}
+:deep(.v-field--appended){padding-inline-end:0;}
+:deep(input){font-size:14px;}
+:deep(.v-field__input){font-size:14px;}
 </style>

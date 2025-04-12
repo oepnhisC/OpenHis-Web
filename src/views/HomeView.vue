@@ -7,9 +7,8 @@
       <v-col v-if="this.$hasPermission('jiezhangdanju')"><v-btn @click="this.$router.replace('/MenZhenJZGuanLi');$emit('setTitle','门诊结账管理')" size="x-large">门诊结账管理</v-btn></v-col>
       <v-col><v-btn  @click="this.$router.replace('/GaoLingZiFeiBiao');$emit('setTitle','高龄自费计算表')" size="x-large" prepend-icon="mdi-human-cane">高龄自费计算表</v-btn></v-col>
       <v-col><v-btn @click="this.$router.replace('/dad');$emit('setTitle','病人入院管理')" size="x-large" color="green" >病人入院管理</v-btn></v-col>
-      <v-col><v-btn @click="this.$router.replace('/vipcard');$emit('setTitle','会员管理')" size="x-large" color="green">会员管理</v-btn></v-col>
+      <v-col v-if="this.$hasPermission('vipcard')" ><v-btn @click="this.$router.replace('/vipcard');$emit('setTitle','会员管理')" size="x-large" color="green">会员管理</v-btn></v-col>
       <v-col><v-btn @click="this.$router.replace('/menzhen');" size="x-large" prepend-icon="mdi-doctor" color="secondary">门诊医生工作站</v-btn></v-col>
-      <v-col><v-btn @click="this.$router.replace('/search01');$emit('setTitle','医保服务查询')" size="x-large"  prepend-icon="mdi-magnify" color="secondary" >医保信息查询</v-btn></v-col>
       <v-col v-if="this.$hasPermission('userManger')"><v-btn @click="this.$router.replace('/HISManager');" size="x-large" prepend-icon="mdi-star-david" color="deep-orange-accent-3">管理员功能</v-btn></v-col>
 
 
